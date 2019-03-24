@@ -1,0 +1,109 @@
+{
+  "name": "rrsx",
+  "version": "1.0.3",
+  "description": "Rrsx",
+  "main": "index.js",
+  "module": "index.es.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/VictorNicolasLO/rctx.git"
+  },
+  "keywords": [
+    "Services",
+    "Mobx",
+    "API",
+    "React"
+  ],
+  "engines": {
+    "node": ">=8",
+    "npm": ">=5"
+  },
+  "scripts": {
+    "test": "cross-env CI=1 react-scripts test --env=jsdom",
+    "test:watch": "react-scripts test --env=jsdom",
+    "build3": "node scripts/build.js",
+    "build2": "webpack",
+    "build": "rollup -c",
+    "start": "rollup -c -w",
+    "prepare": "npm run build",
+    "predeploy": "cd example && npm install && npm run build",
+    "deploy": "gh-pages -d example/build"
+  },
+  "peerDependencies": {
+    "mobx": "^4.0.0 || ^5.0.0",
+    "react": "^16.8.0",
+    "mobx-react-lite": "^1.1.1",
+    "react-dom": "^16.8.3",
+    "react-router": "^4.3.1",
+    "react-router-dom": "^4.3.1"
+  },
+  "devDependencies": {
+    "babel-eslint": "9.0.0",
+    "eslint": "5.12.0",
+    "eslint-config-react-app": "^3.0.7",
+    "eslint-loader": "2.1.1",
+    "eslint-plugin-flowtype": "2.50.1",
+    "eslint-plugin-import": "2.14.0",
+    "eslint-plugin-jsx-a11y": "6.1.2",
+    "eslint-plugin-react": "7.12.4",
+    "@babel/core": "7.2.2",
+    "@babel/plugin-external-helpers": "^7.2.0",
+    "@babel/preset-flow": "^7.0.0",
+    "@babel/preset-react": "^7.0.0",
+    "@babel/preset-stage-0": "^7.0.0",
+    "@svgr/rollup": "^2.4.1",
+    "babel-core": "^7.0.0-bridge.0",
+    "babel-jest": "23.6.0",
+    "babel-loader": "8.0.5",
+    "babel-plugin-external-helpers": "^6.22.0",
+    "babel-plugin-named-asset-import": "^0.3.1",
+    "babel-plugin-transform-decorators-legacy": "^1.3.5",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-flow": "^6.23.0",
+    "babel-preset-mobx": "^2.0.0",
+    "babel-preset-react": "^6.24.1",
+    "cross-env": "^5.1.4",
+    "eslint-config-standard": "^11.0.0",
+    "eslint-config-standard-react": "^6.0.0",
+    "eslint-plugin-node": "^7.0.1",
+    "eslint-plugin-promise": "^4.0.0",
+    "eslint-plugin-standard": "^3.1.0",
+    "gh-pages": "^1.2.0",
+    "history": "^4.7.2",
+    "mobx": "^5.9.0",
+    "mobx-react-lite": "^1.1.1",
+    "react": "^16.8.3",
+    "react-dom": "^16.8.3",
+    "react-router": "^4.3.1",
+    "react-router-dom": "^4.3.1",
+    "react-scripts": "^2.1.8",
+    "rollup": "^1.6.0",
+    "rollup-plugin-babel": "^4.3.2",
+    "rollup-plugin-commonjs": "^9.2.1",
+    "rollup-plugin-node-resolve": "^4.0.1",
+    "rollup-plugin-peer-deps-external": "^2.2.0",
+    "rollup-plugin-postcss": "^1.6.2",
+    "rollup-plugin-url": "^1.4.0",
+    "webpack-cli": "^3.2.3",
+    "babel-cli": "^6.24.1",
+    "babel-plugin-transform-object-rest-spread": "^6.23.0",
+    "babel-plugin-transform-react-jsx": "^6.24.1"
+  },
+  "files": [
+    "dist"
+  ],
+  "dependencies": {
+    "@babel/preset-stage-1": "^7.0.0",
+    "babel-plugin-transform-decorators": "^6.24.1",
+    "babel-preset-react-app": "^7.0.2",
+    "fork-ts-checker-webpack-plugin-alt": "^0.4.14",
+    "rollup-plugin-replace": "^2.1.0",
+    "rollup-plugin-terser": "^4.0.4"
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ]
+}

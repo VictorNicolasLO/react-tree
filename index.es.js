@@ -1,14 +1,7 @@
-'use strict';
-
-Object.defineProperty(exports, '__esModule', { value: true });
-
-function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
-
-var React = require('react');
-var React__default = _interopDefault(React);
-var reactRouterDom = require('react-router-dom');
-var mobx = require('mobx');
-var mobxReactLite = require('mobx-react-lite');
+import React, { useMemo, useEffect } from 'react';
+import { Redirect, Switch, Route } from 'react-router-dom';
+import { observable, action } from 'mobx';
+import { observer } from 'mobx-react-lite';
 
 function _defineProperty(obj, key, value) {
   if (key in obj) {
@@ -60,7 +53,7 @@ function _applyDecoratedDescriptor(target, property, decorators, descriptor, con
 
 class NotFoundTemplate {
   constructor() {
-    _defineProperty(this, "template", () => React__default.createElement("div", null, "Not found!!"));
+    _defineProperty(this, "template", () => React.createElement("div", null, "Not found!!"));
   }
 
   get() {
@@ -834,21 +827,21 @@ let LayoutService = (_class = (_temp = class LayoutService {
     this.show = false;
   }
 
-}, _temp), (_descriptor = _applyDecoratedDescriptor(_class.prototype, "show", [mobx.observable], {
+}, _temp), (_descriptor = _applyDecoratedDescriptor(_class.prototype, "show", [observable], {
   configurable: true,
   enumerable: true,
   writable: true,
   initializer: null
-}), _applyDecoratedDescriptor(_class.prototype, "switch", [mobx.action], Object.getOwnPropertyDescriptor(_class.prototype, "switch"), _class.prototype), _applyDecoratedDescriptor(_class.prototype, "enable", [mobx.action], Object.getOwnPropertyDescriptor(_class.prototype, "enable"), _class.prototype), _applyDecoratedDescriptor(_class.prototype, "disable", [mobx.action], Object.getOwnPropertyDescriptor(_class.prototype, "disable"), _class.prototype)), _class);
+}), _applyDecoratedDescriptor(_class.prototype, "switch", [action], Object.getOwnPropertyDescriptor(_class.prototype, "switch"), _class.prototype), _applyDecoratedDescriptor(_class.prototype, "enable", [action], Object.getOwnPropertyDescriptor(_class.prototype, "enable"), _class.prototype), _applyDecoratedDescriptor(_class.prototype, "disable", [action], Object.getOwnPropertyDescriptor(_class.prototype, "disable"), _class.prototype)), _class);
 
 function component(Target) {
-  return mobxReactLite.observer(Target);
+  return observer(Target);
 }
 
 const serviceStore = instance;
 const injectService = serviceStore.get;
 const useService = Service => {
-  return React.useMemo(() => injectService(Service), [Service]);
+  return useMemo(() => injectService(Service), [Service]);
 };
 const LayoutService$1 = LayoutService; // Decorators
 
@@ -904,7 +897,7 @@ function createRouteComponent(opt) {
   let isDisableLayouRun = false;
 
   const routedComponent = () => {
-    React.useEffect(() => {
+    useEffect(() => {
       runOnEnter(opt.onEnter);
       return () => {
         runEnableLayout(services);
@@ -920,23 +913,23 @@ function createRouteComponent(opt) {
     const isProtected = runProtect(opt.guard);
 
     if (isProtected) {
-      return React__default.createElement(reactRouterDom.Redirect, {
+      return React.createElement(Redirect, {
         to: isProtected
       });
     }
 
-    return React__default.createElement(Component, null);
-    return React__default.createElement("div", null, "hola");
+    return React.createElement(Component, null);
+    return React.createElement("div", null, "hola");
   };
 
   return component(routedComponent);
 }
 
 function makeRoute(item, index) {
-  if (item.redirect) item.component = () => React__default.createElement(reactRouterDom.Redirect, {
+  if (item.redirect) item.component = () => React.createElement(Redirect, {
     to: item.redirect
   });
-  return React__default.createElement(reactRouterDom.Route, {
+  return React.createElement(Route, {
     exact: item.exact,
     key: index,
     path: item.path,
@@ -946,11 +939,11 @@ function makeRoute(item, index) {
 
 function createRouter(router, config = {}) {
   const ResultComponent = () => {
-    return React__default.createElement(reactRouterDom.Switch, null, router.map(makeRoute), config.default ? makeRoute({ ...config.default,
+    return React.createElement(Switch, null, router.map(makeRoute), config.default ? makeRoute({ ...config.default,
       ...{
         path: '*'
       }
-    }, 'default') : null, React__default.createElement(reactRouterDom.Route, {
+    }, 'default') : null, React.createElement(Route, {
       path: "*",
       component: config.notFoundComponent || NotFound.get()
     }));
@@ -961,14 +954,5 @@ function createRouter(router, config = {}) {
 
 const navigator$1 = nav;
 
-exports.NotFound = NotFound;
-exports.createRouter = createRouter;
-exports.navigator = navigator$1;
-exports.component = component;
-exports.LayoutService = LayoutService$1;
-exports.injectService = injectService;
-exports.service = service;
-exports.useService = useService;
-exports.serviceStore = serviceStore;
-exports.inject = inject;
-//# sourceMappingURL=index.js.map
+export { NotFound, createRouter, navigator$1 as navigator, component, LayoutService$1 as LayoutService, injectService, service, useService, serviceStore, inject };
+//# sourceMappingURL=index.es.js.map

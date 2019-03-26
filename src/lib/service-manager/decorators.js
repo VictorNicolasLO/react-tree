@@ -1,3 +1,5 @@
+import { instance } from './service-store';
+
 export function ServiceDecorator(config) {
   return function(Target) {
     return class Result extends Target {
@@ -11,5 +13,11 @@ export function ServiceDecorator(config) {
         }
       }
     };
+  };
+}
+
+export function injectDecorator(Service, config = {}) {
+  return function(Target) {
+    return instance.get(Service);
   };
 }

@@ -1,27 +1,36 @@
 import React from 'react';
-import { Switch, Route } from 'react-router-dom';
+import { Switch, Route, Redirect } from 'react-router-dom';
 import { createRouteComponent } from './utils';
-import { NotFound } from './not-found-template';
+import { defaultsInstance } from '../defaults';
 
-export function createRouter(router, config) {
-  const Default = config.default;
+function makeRoute(item, index) {
+  if (item.redirect) item.component = () => <Redirect to={item.redirect} />;
+  return (
+    <Route
+      exact={item.exact}
+      key={index}
+      path={item.path}
+      component={createRouteComponent(item)}
+    />
+  );
+}
+
+export function createRouter(router, config = {}) {
+  const notFoundTemplate = config.notFoundTemplate;
   const ResultComponent = () => {
     return (
       <Switch>
-        {router.map((item, index) => {
-          return (
-            <Route
-              exact={item.exact}
-              key={index}
-              path={item.path}
-              component={createRouteComponent(item)}
-            />
-          );
-        })}
-        {Default ? <Route path="*" component={Default} /> : null}
+        {router.map(makeRoute)}
+        {config.default
+          ? makeRoute({ ...config.default, ...{ path: '*' } }, 'default')
+          : null}
         <Route
           path="*"
-          component={config.notFoundComponent || NotFound.get()}
+          component={
+            notFoundComponent || notFoundTemplate
+              ? defaultsInstance.get('notFound').templates[notFoundTemplate]
+              : defaultsInstance.get('notFound').default
+          }
         />
       </Switch>
     );

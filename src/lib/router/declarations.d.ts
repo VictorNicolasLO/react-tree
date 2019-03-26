@@ -1,16 +1,28 @@
 import LayoutService from '../service-manager/layout-service';
-
+import React, { Component } from 'react';
 export interface RouterOptions {
   path: string;
   component: Component;
   disableLayout?: LayoutService | Array<LayoutService>;
-  guard?: Function<Boolean> | Array<Function<Boolean>>;
-  onEnter?: Function<Boolean> | Array<Function>;
-  onOut?: Function<Boolean> | Array<Function>;
+  guard?: Function | Array<Function>;
+  onEnter?: Function | Array<Function>;
+  onOut?: Function | Array<Function>;
+  redirect?: string;
+  exact?: boolean;
+}
+
+export interface DefaultRouterOptions {
+  component: Component;
+  disableLayout?: LayoutService | Array<LayoutService>;
+  guard?: Function | Array<Function>;
+  onEnter?: Function | Array<Function>;
+  onOut?: Function | Array<Function>;
+  redirect?: string;
   exact?: boolean;
 }
 
 export interface Config {
-  default: Component;
+  default: DefaultRouterOptions;
   notFoundComponent: Component;
+  notFoundTemplate: string;
 }

@@ -5,5 +5,8 @@ export {
   injectService,
   service,
   useService,
-  serviceStore
+  serviceStore,
+  inject,
 } from './lib/service-manager';
+
+export { setDefaults } from './lib/defaults';

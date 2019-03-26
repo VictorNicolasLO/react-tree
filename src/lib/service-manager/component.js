@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { observer, useObserver } from 'mobx-react-lite';
 import { Component } from 'react';
 import { defaultsInstance } from '../defaults';
+
 export function component(Target, config) {
   if (config.wait) {
     const wait = config.wait;

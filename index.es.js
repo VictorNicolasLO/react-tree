@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect } from 'react';
+import React$1, { useMemo, useEffect } from 'react';
 import { Redirect, Switch, Route } from 'react-router-dom';
 import { observable, action } from 'mobx';
 import { observer } from 'mobx-react-lite';
@@ -53,7 +53,7 @@ function _applyDecoratedDescriptor(target, property, decorators, descriptor, con
 
 class NotFoundTemplate {
   constructor() {
-    _defineProperty(this, "template", () => React.createElement("div", null, "Not found!!"));
+    _defineProperty(this, "template", () => React$1.createElement("div", null, "Not found!!"));
   }
 
   get() {
@@ -834,7 +834,53 @@ let LayoutService = (_class = (_temp = class LayoutService {
   initializer: null
 }), _applyDecoratedDescriptor(_class.prototype, "switch", [action], Object.getOwnPropertyDescriptor(_class.prototype, "switch"), _class.prototype), _applyDecoratedDescriptor(_class.prototype, "enable", [action], Object.getOwnPropertyDescriptor(_class.prototype, "enable"), _class.prototype), _applyDecoratedDescriptor(_class.prototype, "disable", [action], Object.getOwnPropertyDescriptor(_class.prototype, "disable"), _class.prototype)), _class);
 
-function component(Target) {
+const defaultConfig = {
+  notFound: {
+    default: () => React.createElement("div", null, "Not found"),
+    templates: {}
+  },
+  waitFor: {
+    default: () => React.createElement("div", null, "Loading"),
+    templates: {}
+  }
+};
+
+class Defaults {
+  constructor(defaults) {
+    _defineProperty(this, "data", void 0);
+
+    this.data = defaults;
+  }
+
+  setAll(data) {
+    this.data = data;
+  }
+
+  set(value, key) {
+    data[key] = value;
+  }
+
+  get(key) {
+    data[key];
+  }
+
+}
+const defaultsInstance = new Defaults(defaultConfig);
+function setDefaults(defaults) {
+  defaultsInstance.setAll(defaults);
+}
+
+function component(Target, config) {
+  if (config.wait) {
+    const wait = config.wait;
+    const waitForDefault = defaultsInstance.get('waitFor');
+    const Template = wait.component || wait.template ? waitForDefault.templates[wait.template] : waitForDefault.default;
+    return observer(props => {
+      const isResolved = config.wait.for(props);
+      if (!isResolved) return React$1.createElement(Template, props);else return React$1.createElement(Target, props);
+    });
+  }
+
   return observer(Target);
 }
 
@@ -913,23 +959,23 @@ function createRouteComponent(opt) {
     const isProtected = runProtect(opt.guard);
 
     if (isProtected) {
-      return React.createElement(Redirect, {
+      return React$1.createElement(Redirect, {
         to: isProtected
       });
     }
 
-    return React.createElement(Component, null);
-    return React.createElement("div", null, "hola");
+    return React$1.createElement(Component, null);
+    return React$1.createElement("div", null, "hola");
   };
 
   return component(routedComponent);
 }
 
 function makeRoute(item, index) {
-  if (item.redirect) item.component = () => React.createElement(Redirect, {
+  if (item.redirect) item.component = () => React$1.createElement(Redirect, {
     to: item.redirect
   });
-  return React.createElement(Route, {
+  return React$1.createElement(Route, {
     exact: item.exact,
     key: index,
     path: item.path,
@@ -938,14 +984,16 @@ function makeRoute(item, index) {
 }
 
 function createRouter(router, config = {}) {
+  const notFoundTemplate = config.notFoundTemplate;
+
   const ResultComponent = () => {
-    return React.createElement(Switch, null, router.map(makeRoute), config.default ? makeRoute({ ...config.default,
+    return React$1.createElement(Switch, null, router.map(makeRoute), config.default ? makeRoute({ ...config.default,
       ...{
         path: '*'
       }
-    }, 'default') : null, React.createElement(Route, {
+    }, 'default') : null, React$1.createElement(Route, {
       path: "*",
-      component: config.notFoundComponent || NotFound.get()
+      component: notFoundComponent || notFoundTemplate ? defaultsInstance.get('notFound').templates[notFoundTemplate] : defaultsInstance.get('notFound').default
     }));
   };
 
@@ -954,5 +1002,5 @@ function createRouter(router, config = {}) {
 
 const navigator$1 = nav;
 
-export { NotFound, createRouter, navigator$1 as navigator, component, LayoutService$1 as LayoutService, injectService, service, useService, serviceStore, inject };
+export { NotFound, createRouter, navigator$1 as navigator, component, LayoutService$1 as LayoutService, injectService, service, useService, serviceStore, inject, setDefaults };
 //# sourceMappingURL=index.es.js.map

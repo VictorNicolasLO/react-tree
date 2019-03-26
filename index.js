@@ -4,8 +4,8 @@ Object.defineProperty(exports, '__esModule', { value: true });
 
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
 
-var React = require('react');
-var React__default = _interopDefault(React);
+var React$1 = require('react');
+var React$1__default = _interopDefault(React$1);
 var reactRouterDom = require('react-router-dom');
 var mobx = require('mobx');
 var mobxReactLite = require('mobx-react-lite');
@@ -60,7 +60,7 @@ function _applyDecoratedDescriptor(target, property, decorators, descriptor, con
 
 class NotFoundTemplate {
   constructor() {
-    _defineProperty(this, "template", () => React__default.createElement("div", null, "Not found!!"));
+    _defineProperty(this, "template", () => React$1__default.createElement("div", null, "Not found!!"));
   }
 
   get() {
@@ -841,14 +841,60 @@ let LayoutService = (_class = (_temp = class LayoutService {
   initializer: null
 }), _applyDecoratedDescriptor(_class.prototype, "switch", [mobx.action], Object.getOwnPropertyDescriptor(_class.prototype, "switch"), _class.prototype), _applyDecoratedDescriptor(_class.prototype, "enable", [mobx.action], Object.getOwnPropertyDescriptor(_class.prototype, "enable"), _class.prototype), _applyDecoratedDescriptor(_class.prototype, "disable", [mobx.action], Object.getOwnPropertyDescriptor(_class.prototype, "disable"), _class.prototype)), _class);
 
-function component(Target) {
+const defaultConfig = {
+  notFound: {
+    default: () => React.createElement("div", null, "Not found"),
+    templates: {}
+  },
+  waitFor: {
+    default: () => React.createElement("div", null, "Loading"),
+    templates: {}
+  }
+};
+
+class Defaults {
+  constructor(defaults) {
+    _defineProperty(this, "data", void 0);
+
+    this.data = defaults;
+  }
+
+  setAll(data) {
+    this.data = data;
+  }
+
+  set(value, key) {
+    data[key] = value;
+  }
+
+  get(key) {
+    data[key];
+  }
+
+}
+const defaultsInstance = new Defaults(defaultConfig);
+function setDefaults(defaults) {
+  defaultsInstance.setAll(defaults);
+}
+
+function component(Target, config) {
+  if (config.wait) {
+    const wait = config.wait;
+    const waitForDefault = defaultsInstance.get('waitFor');
+    const Template = wait.component || wait.template ? waitForDefault.templates[wait.template] : waitForDefault.default;
+    return mobxReactLite.observer(props => {
+      const isResolved = config.wait.for(props);
+      if (!isResolved) return React$1__default.createElement(Template, props);else return React$1__default.createElement(Target, props);
+    });
+  }
+
   return mobxReactLite.observer(Target);
 }
 
 const serviceStore = instance;
 const injectService = serviceStore.get;
 const useService = Service => {
-  return React.useMemo(() => injectService(Service), [Service]);
+  return React$1.useMemo(() => injectService(Service), [Service]);
 };
 const LayoutService$1 = LayoutService; // Decorators
 
@@ -904,7 +950,7 @@ function createRouteComponent(opt) {
   let isDisableLayouRun = false;
 
   const routedComponent = () => {
-    React.useEffect(() => {
+    React$1.useEffect(() => {
       runOnEnter(opt.onEnter);
       return () => {
         runEnableLayout(services);
@@ -920,23 +966,23 @@ function createRouteComponent(opt) {
     const isProtected = runProtect(opt.guard);
 
     if (isProtected) {
-      return React__default.createElement(reactRouterDom.Redirect, {
+      return React$1__default.createElement(reactRouterDom.Redirect, {
         to: isProtected
       });
     }
 
-    return React__default.createElement(Component, null);
-    return React__default.createElement("div", null, "hola");
+    return React$1__default.createElement(Component, null);
+    return React$1__default.createElement("div", null, "hola");
   };
 
   return component(routedComponent);
 }
 
 function makeRoute(item, index) {
-  if (item.redirect) item.component = () => React__default.createElement(reactRouterDom.Redirect, {
+  if (item.redirect) item.component = () => React$1__default.createElement(reactRouterDom.Redirect, {
     to: item.redirect
   });
-  return React__default.createElement(reactRouterDom.Route, {
+  return React$1__default.createElement(reactRouterDom.Route, {
     exact: item.exact,
     key: index,
     path: item.path,
@@ -945,14 +991,16 @@ function makeRoute(item, index) {
 }
 
 function createRouter(router, config = {}) {
+  const notFoundTemplate = config.notFoundTemplate;
+
   const ResultComponent = () => {
-    return React__default.createElement(reactRouterDom.Switch, null, router.map(makeRoute), config.default ? makeRoute({ ...config.default,
+    return React$1__default.createElement(reactRouterDom.Switch, null, router.map(makeRoute), config.default ? makeRoute({ ...config.default,
       ...{
         path: '*'
       }
-    }, 'default') : null, React__default.createElement(reactRouterDom.Route, {
+    }, 'default') : null, React$1__default.createElement(reactRouterDom.Route, {
       path: "*",
-      component: config.notFoundComponent || NotFound.get()
+      component: notFoundComponent || notFoundTemplate ? defaultsInstance.get('notFound').templates[notFoundTemplate] : defaultsInstance.get('notFound').default
     }));
   };
 
@@ -971,4 +1019,5 @@ exports.service = service;
 exports.useService = useService;
 exports.serviceStore = serviceStore;
 exports.inject = inject;
+exports.setDefaults = setDefaults;
 //# sourceMappingURL=index.js.map

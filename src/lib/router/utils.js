@@ -74,7 +74,6 @@ export function createRouteComponent(opt) {
     }
 
     return <Component />;
-    return <div>hola</div>;
   };
 
   return component(routedComponent);

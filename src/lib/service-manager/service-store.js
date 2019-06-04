@@ -11,6 +11,12 @@ export default class ServiceStore {
       return this.store[Service];
     } else return this.create(Service);
   };
+
+  destroy = (Service) => {
+    if (this.store[Service]) {
+      delete this.store[Service];
+    }
+  };
 }
 
 export const instance = new ServiceStore();

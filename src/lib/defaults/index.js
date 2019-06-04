@@ -1,7 +1,7 @@
 import { defaultConfig } from './default-config';
 
 export class Defaults {
-  data;
+
 
   constructor(defaults) {
     this.data = defaults;
@@ -12,11 +12,11 @@ export class Defaults {
   }
 
   set(value, key) {
-    data[key] = value;
+    this.data[key] = value;
   }
 
   get(key) {
-    data[key];
+    this.data[key];
   }
 }
 

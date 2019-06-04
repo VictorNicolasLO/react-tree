@@ -17,21 +17,24 @@ function makeRoute(item, index) {
 
 export function createRouter(router, config = {}) {
   const notFoundTemplate = config.notFoundTemplate;
+  const notFoundComponent = config.notFoundComponent;
   const ResultComponent = () => {
     return (
       <Switch>
         {router.map(makeRoute)}
-        {config.default
-          ? makeRoute({ ...config.default, ...{ path: '*' } }, 'default')
-          : null}
-        <Route
-          path="*"
-          component={
-            notFoundComponent || notFoundTemplate
-              ? defaultsInstance.get('notFound').templates[notFoundTemplate]
-              : defaultsInstance.get('notFound').default
-          }
-        />
+        {config.default ? (
+          makeRoute({ ...config.default, ...{ path: '*' } }, 'default')
+        ) : (
+          <Route
+            path="*"
+            component={
+              notFoundComponent ||
+              (notFoundTemplate
+                ? defaultsInstance.get('notFound').templates[notFoundTemplate]
+                : defaultsInstance.get('notFound').default)
+            }
+          />
+        )}
       </Switch>
     );
   };

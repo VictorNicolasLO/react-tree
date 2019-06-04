@@ -10,7 +10,11 @@ export declare const serviceStore: ServiceStore;
 
 export declare function injectService<T>(Service): T;
 
-export declare function useService<T>(Service): T;
+export interface UseServiceOptions {
+  attach: Boolean;
+}
+
+export declare function useService<T>(Service, options: UseServiceOptions): T;
 
 export const LayoutService: LayoutServiceLib;
 

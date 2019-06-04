@@ -847,8 +847,6 @@ const defaultConfig = {
 
 class Defaults {
   constructor(defaults) {
-    _defineProperty(this, "data", void 0);
-
     this.data = defaults;
   }
 
@@ -857,11 +855,11 @@ class Defaults {
   }
 
   set(value, key) {
-    data[key] = value;
+    this.data[key] = value;
   }
 
   get(key) {
-    data[key];
+    this.data[key];
   }
 
 }
@@ -870,7 +868,7 @@ function setDefaults(defaults) {
   defaultsInstance.setAll(defaults);
 }
 
-function component(Target, config) {
+function component(Target, config = {}) {
   if (config.wait) {
     const wait = config.wait;
     const waitForDefault = defaultsInstance.get('waitFor');
@@ -985,15 +983,16 @@ function makeRoute(item, index) {
 
 function createRouter(router, config = {}) {
   const notFoundTemplate = config.notFoundTemplate;
+  const notFoundComponent = config.notFoundComponent;
 
   const ResultComponent = () => {
     return React$1.createElement(Switch, null, router.map(makeRoute), config.default ? makeRoute({ ...config.default,
       ...{
         path: '*'
       }
-    }, 'default') : null, React$1.createElement(Route, {
+    }, 'default') : React$1.createElement(Route, {
       path: "*",
-      component: notFoundComponent || notFoundTemplate ? defaultsInstance.get('notFound').templates[notFoundTemplate] : defaultsInstance.get('notFound').default
+      component: notFoundComponent || (notFoundTemplate ? defaultsInstance.get('notFound').templates[notFoundTemplate] : defaultsInstance.get('notFound').default)
     }));
   };
 

@@ -1,8 +1,10 @@
+import { initController } from './controller-initializer';
+
 export default class ServiceStore {
   store = {};
 
   create = (Service) => {
-    this.store[Service] = new Service();
+    this.store[Service] = initController(Service);
     return this.store[Service];
   };
 

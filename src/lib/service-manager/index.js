@@ -1,6 +1,9 @@
-import { useMemo, useEffect, useState } from 'react';
 import ServiceStore, { instance } from './service-store';
-import { ServiceDecorator, injectDecorator } from './decorators';
+import {
+  ServiceDecorator,
+  injectDecorator,
+  ControllerDecorator,
+} from './decorators';
 import LayoutServiceLib from './layout-service';
 import { useServiceHook, useControllerHook } from './hooks';
 
@@ -16,4 +19,5 @@ export const LayoutService = LayoutServiceLib;
 
 // Decorators
 export const service = ServiceDecorator;
+export const controller = ControllerDecorator;
 export const inject = injectDecorator;

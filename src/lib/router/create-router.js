@@ -18,6 +18,7 @@ function makeRoute(item, index) {
 export function createRouter(router, config = {}) {
   const notFoundTemplate = config.notFoundTemplate;
   const notFoundComponent = config.notFoundComponent;
+  const notFoundDefault = defaultsInstance.get('notFound');
   const ResultComponent = () => {
     return (
       <Switch>
@@ -30,8 +31,8 @@ export function createRouter(router, config = {}) {
             component={
               notFoundComponent ||
               (notFoundTemplate
-                ? defaultsInstance.get('notFound').templates[notFoundTemplate]
-                : defaultsInstance.get('notFound').default)
+                ? notFoundDefault.templates[notFoundTemplate]
+                : notFoundDefault.default)
             }
           />
         )}

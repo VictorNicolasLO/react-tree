@@ -5,6 +5,7 @@ import { ServiceDecorator, injectDecorator } from './decorators';
 export { component } from './component';
 
 import LayoutServiceLib from './layout-service';
+import { ControllerDecorator } from './decorators';
 
 export declare const serviceStore: ServiceStore;
 
@@ -23,4 +24,6 @@ export const LayoutService: LayoutServiceLib;
 // decorators
 
 export const service = ServiceDecorator;
+export const controller = ControllerDecorator;
+
 export const inject = injectDecorator;

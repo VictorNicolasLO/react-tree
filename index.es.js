@@ -1,4 +1,4 @@
-import React$1, { useMemo, useEffect } from 'react';
+import React$1, { useEffect, useMemo, useState } from 'react';
 import { Redirect, Switch, Route } from 'react-router-dom';
 import { observable, action } from 'mobx';
 import { observer } from 'mobx-react-lite';
@@ -764,12 +764,32 @@ var createBrowserHistory = function createBrowserHistory() {
 
 var nav = createBrowserHistory({});
 
+function initController(Controller) {
+  const newController = new Controller();
+
+  (async () => {
+    try {
+      await newController.init();
+
+      if ('ready' in newController) {
+        newController.ready = true;
+      }
+    } catch (e) {
+      if ('error' in newController) {
+        newController.error = e;
+      }
+    }
+  })();
+
+  return newController;
+}
+
 class ServiceStore {
   constructor() {
     _defineProperty(this, "store", {});
 
     _defineProperty(this, "create", Service => {
-      this.store[Service] = new Service();
+      this.store[Service] = initController(Service);
       return this.store[Service];
     });
 
@@ -777,6 +797,12 @@ class ServiceStore {
       if (this.store[Service]) {
         return this.store[Service];
       } else return this.create(Service);
+    });
+
+    _defineProperty(this, "destroy", Service => {
+      if (this.store[Service]) {
+        delete this.store[Service];
+      }
     });
   }
 
@@ -801,6 +827,26 @@ function ServiceDecorator(config) {
       }
 
     }, _temp;
+  };
+}
+function ControllerDecorator(config) {
+  return function (Target) {
+    var _temp2;
+
+    return _temp2 = class Result extends Target {
+      constructor(config) {
+        super(config);
+
+        _defineProperty(this, "models", {});
+
+        for (let i in this) {
+          this.models[i] = e => {
+            this[i] = e.target.value;
+          };
+        }
+      }
+
+    }, _temp2;
   };
 }
 function injectDecorator(Service, config = {}) {
@@ -834,6 +880,21 @@ let LayoutService = (_class = (_temp = class LayoutService {
   initializer: null
 }), _applyDecoratedDescriptor(_class.prototype, "switch", [action], Object.getOwnPropertyDescriptor(_class.prototype, "switch"), _class.prototype), _applyDecoratedDescriptor(_class.prototype, "enable", [action], Object.getOwnPropertyDescriptor(_class.prototype, "enable"), _class.prototype), _applyDecoratedDescriptor(_class.prototype, "disable", [action], Object.getOwnPropertyDescriptor(_class.prototype, "disable"), _class.prototype)), _class);
 
+const useServiceHook = (Service, opt = {}) => {
+  useEffect(() => {
+    return () => {
+      if (opt.attach) {
+        serviceStore.destroy(Service);
+      }
+    };
+  }, []);
+  return useMemo(() => instance.get(Service), [Service]);
+};
+const useControllerHook = Controller => {
+  const [controller] = useState(initController(Controller));
+  return controller;
+};
+
 const defaultConfig = {
   notFound: {
     default: () => React.createElement("div", null, "Not found"),
@@ -847,19 +908,17 @@ const defaultConfig = {
 
 class Defaults {
   constructor(defaults) {
+    _defineProperty(this, "setAll", data => {
+      this.data = data;
+    });
+
+    _defineProperty(this, "set", (value, key) => {
+      this.data[key] = value;
+    });
+
+    _defineProperty(this, "get", key => this.data[key]);
+
     this.data = defaults;
-  }
-
-  setAll(data) {
-    this.data = data;
-  }
-
-  set(value, key) {
-    this.data[key] = value;
-  }
-
-  get(key) {
-    this.data[key];
   }
 
 }
@@ -882,14 +941,14 @@ function component(Target, config = {}) {
   return observer(Target);
 }
 
-const serviceStore = instance;
-const injectService = serviceStore.get;
-const useService = Service => {
-  return useMemo(() => injectService(Service), [Service]);
-};
+const serviceStore$1 = instance;
+const injectService = serviceStore$1.get;
+const useService = useServiceHook;
+const useController = useControllerHook;
 const LayoutService$1 = LayoutService; // Decorators
 
 const service = ServiceDecorator;
+const controller = ControllerDecorator;
 const inject = injectDecorator;
 
 function runOnEnter(onEnter) {
@@ -963,7 +1022,6 @@ function createRouteComponent(opt) {
     }
 
     return React$1.createElement(Component, null);
-    return React$1.createElement("div", null, "hola");
   };
 
   return component(routedComponent);
@@ -984,6 +1042,7 @@ function makeRoute(item, index) {
 function createRouter(router, config = {}) {
   const notFoundTemplate = config.notFoundTemplate;
   const notFoundComponent = config.notFoundComponent;
+  const notFoundDefault = defaultsInstance.get('notFound');
 
   const ResultComponent = () => {
     return React$1.createElement(Switch, null, router.map(makeRoute), config.default ? makeRoute({ ...config.default,
@@ -992,7 +1051,7 @@ function createRouter(router, config = {}) {
       }
     }, 'default') : React$1.createElement(Route, {
       path: "*",
-      component: notFoundComponent || (notFoundTemplate ? defaultsInstance.get('notFound').templates[notFoundTemplate] : defaultsInstance.get('notFound').default)
+      component: notFoundComponent || (notFoundTemplate ? notFoundDefault.templates[notFoundTemplate] : notFoundDefault.default)
     }));
   };
 
@@ -1001,5 +1060,5 @@ function createRouter(router, config = {}) {
 
 const navigator$1 = nav;
 
-export { NotFound, createRouter, navigator$1 as navigator, component, LayoutService$1 as LayoutService, injectService, service, useService, serviceStore, inject, setDefaults };
+export { NotFound, createRouter, navigator$1 as navigator, component, LayoutService$1 as LayoutService, injectService, service, useService, serviceStore$1 as serviceStore, inject, useController, controller, setDefaults };
 //# sourceMappingURL=index.es.js.map

@@ -5,6 +5,7 @@ export {
   injectService,
   service,
   useService,
+  useController,
   serviceStore,
   inject,
 } from './src/lib/service-manager';

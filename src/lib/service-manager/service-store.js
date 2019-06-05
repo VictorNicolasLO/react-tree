@@ -4,19 +4,19 @@ export default class ServiceStore {
   store = {};
 
   create = (Service) => {
-    this.store[Service] = initController(Service);
-    return this.store[Service];
+    this.store[Service._id] = initController(Service);
+    return this.store[Service._id];
   };
 
   get = (Service) => {
-    if (this.store[Service]) {
-      return this.store[Service];
+    if (this.store[Service._id]) {
+      return this.store[Service._id];
     } else return this.create(Service);
   };
 
   destroy = (Service) => {
-    if (this.store[Service]) {
-      delete this.store[Service];
+    if (this.store[Service._id]) {
+      delete this.store[Service._id];
     }
   };
 }

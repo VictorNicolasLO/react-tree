@@ -6,7 +6,7 @@ export const useServiceHook = (Service, opt = {}) => {
   useEffect(() => {
     return () => {
       if (opt.attach) {
-        serviceStore.destroy(Service);
+        instance.destroy(Service);
       }
     };
   }, []);

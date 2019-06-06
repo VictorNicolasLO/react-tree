@@ -4,8 +4,8 @@ Object.defineProperty(exports, '__esModule', { value: true });
 
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
 
-var React$1 = require('react');
-var React$1__default = _interopDefault(React$1);
+var React = require('react');
+var React__default = _interopDefault(React);
 var reactRouterDom = require('react-router-dom');
 var mobx = require('mobx');
 var mobxReactLite = require('mobx-react-lite');
@@ -60,7 +60,7 @@ function _applyDecoratedDescriptor(target, property, decorators, descriptor, con
 
 class NotFoundTemplate {
   constructor() {
-    _defineProperty(this, "template", () => React$1__default.createElement("div", null, "Not found!!"));
+    _defineProperty(this, "template", () => React__default.createElement("div", null, "Not found!!"));
   }
 
   get() {
@@ -796,19 +796,19 @@ class ServiceStore {
     _defineProperty(this, "store", {});
 
     _defineProperty(this, "create", Service => {
-      this.store[Service] = initController(Service);
-      return this.store[Service];
+      this.store[Service._id] = initController(Service);
+      return this.store[Service._id];
     });
 
     _defineProperty(this, "get", Service => {
-      if (this.store[Service]) {
-        return this.store[Service];
+      if (this.store[Service._id]) {
+        return this.store[Service._id];
       } else return this.create(Service);
     });
 
     _defineProperty(this, "destroy", Service => {
-      if (this.store[Service]) {
-        delete this.store[Service];
+      if (this.store[Service._id]) {
+        delete this.store[Service._id];
       }
     });
   }
@@ -816,7 +816,30 @@ class ServiceStore {
 }
 const instance = new ServiceStore();
 
+let id = 0;
 function ServiceDecorator(config) {
+  return function (Target) {
+    class Result extends Target {
+      constructor(config) {
+        super(config);
+
+        _defineProperty(this, "models", {});
+
+        for (let i in this) {
+          this.models[i] = e => {
+            this[i] = e.target.value;
+          };
+        }
+      }
+
+    }
+
+    Result._id = id;
+    id++;
+    return Result;
+  };
+}
+function ControllerDecorator(config) {
   return function (Target) {
     var _temp;
 
@@ -834,26 +857,6 @@ function ServiceDecorator(config) {
       }
 
     }, _temp;
-  };
-}
-function ControllerDecorator(config) {
-  return function (Target) {
-    var _temp2;
-
-    return _temp2 = class Result extends Target {
-      constructor(config) {
-        super(config);
-
-        _defineProperty(this, "models", {});
-
-        for (let i in this) {
-          this.models[i] = e => {
-            this[i] = e.target.value;
-          };
-        }
-      }
-
-    }, _temp2;
   };
 }
 function injectDecorator(Service, config = {}) {
@@ -888,27 +891,27 @@ let LayoutService = (_class = (_temp = class LayoutService {
 }), _applyDecoratedDescriptor(_class.prototype, "switch", [mobx.action], Object.getOwnPropertyDescriptor(_class.prototype, "switch"), _class.prototype), _applyDecoratedDescriptor(_class.prototype, "enable", [mobx.action], Object.getOwnPropertyDescriptor(_class.prototype, "enable"), _class.prototype), _applyDecoratedDescriptor(_class.prototype, "disable", [mobx.action], Object.getOwnPropertyDescriptor(_class.prototype, "disable"), _class.prototype)), _class);
 
 const useServiceHook = (Service, opt = {}) => {
-  React$1.useEffect(() => {
+  React.useEffect(() => {
     return () => {
       if (opt.attach) {
-        serviceStore.destroy(Service);
+        instance.destroy(Service);
       }
     };
   }, []);
-  return React$1.useMemo(() => instance.get(Service), [Service]);
+  return React.useMemo(() => instance.get(Service), [Service]);
 };
 const useControllerHook = Controller => {
-  const [controller] = React$1.useState(initController(Controller));
+  const [controller] = React.useState(initController(Controller));
   return controller;
 };
 
 const defaultConfig = {
   notFound: {
-    default: () => React.createElement("div", null, "Not found"),
+    default: () => React__default.createElement("div", null, "Not found"),
     templates: {}
   },
   waitFor: {
-    default: () => React.createElement("div", null, "Loading"),
+    default: () => React__default.createElement("div", null, "Loading"),
     templates: {}
   }
 };
@@ -941,15 +944,15 @@ function component(Target, config = {}) {
     const Template = wait.component || wait.template ? waitForDefault.templates[wait.template] : waitForDefault.default;
     return mobxReactLite.observer(props => {
       const isResolved = config.wait.for(props);
-      if (!isResolved) return React$1__default.createElement(Template, props);else return React$1__default.createElement(Target, props);
+      if (!isResolved) return React__default.createElement(Template, props);else return React__default.createElement(Target, props);
     });
   }
 
   return mobxReactLite.observer(Target);
 }
 
-const serviceStore$1 = instance;
-const injectService = serviceStore$1.get;
+const serviceStore = instance;
+const injectService = serviceStore.get;
 const useService = useServiceHook;
 const useController = useControllerHook;
 const LayoutService$1 = LayoutService; // Decorators
@@ -1007,7 +1010,7 @@ function createRouteComponent(opt) {
   let isDisableLayouRun = false;
 
   const routedComponent = () => {
-    React$1.useEffect(() => {
+    React.useEffect(() => {
       runOnEnter(opt.onEnter);
       return () => {
         runEnableLayout(services);
@@ -1023,22 +1026,22 @@ function createRouteComponent(opt) {
     const isProtected = runProtect(opt.guard);
 
     if (isProtected) {
-      return React$1__default.createElement(reactRouterDom.Redirect, {
+      return React__default.createElement(reactRouterDom.Redirect, {
         to: isProtected
       });
     }
 
-    return React$1__default.createElement(Component, null);
+    return React__default.createElement(Component, null);
   };
 
   return component(routedComponent);
 }
 
 function makeRoute(item, index) {
-  if (item.redirect) item.component = () => React$1__default.createElement(reactRouterDom.Redirect, {
+  if (item.redirect) item.component = () => React__default.createElement(reactRouterDom.Redirect, {
     to: item.redirect
   });
-  return React$1__default.createElement(reactRouterDom.Route, {
+  return React__default.createElement(reactRouterDom.Route, {
     exact: item.exact,
     key: index,
     path: item.path,
@@ -1052,11 +1055,11 @@ function createRouter(router, config = {}) {
   const notFoundDefault = defaultsInstance.get('notFound');
 
   const ResultComponent = () => {
-    return React$1__default.createElement(reactRouterDom.Switch, null, router.map(makeRoute), config.default ? makeRoute({ ...config.default,
+    return React__default.createElement(reactRouterDom.Switch, null, router.map(makeRoute), config.default ? makeRoute({ ...config.default,
       ...{
         path: '*'
       }
-    }, 'default') : React$1__default.createElement(reactRouterDom.Route, {
+    }, 'default') : React__default.createElement(reactRouterDom.Route, {
       path: "*",
       component: notFoundComponent || (notFoundTemplate ? notFoundDefault.templates[notFoundTemplate] : notFoundDefault.default)
     }));
@@ -1075,7 +1078,7 @@ exports.LayoutService = LayoutService$1;
 exports.injectService = injectService;
 exports.service = service;
 exports.useService = useService;
-exports.serviceStore = serviceStore$1;
+exports.serviceStore = serviceStore;
 exports.inject = inject;
 exports.useController = useController;
 exports.controller = controller;

@@ -8,9 +8,10 @@ export function component(Target, config = {}) {
     const wait = config.wait;
     const waitForDefault = defaultsInstance.get('waitFor');
     const Template =
-      wait.component || wait.template
+      wait.component ||
+      (wait.template
         ? waitForDefault.templates[wait.template]
-        : waitForDefault.default;
+        : waitForDefault.default);
 
     return observer((props) => {
       const isResolved = config.wait.for(props);

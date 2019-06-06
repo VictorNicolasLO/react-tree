@@ -1,3 +1,4 @@
+import React from 'react';
 export const defaultConfig = {
   notFound: {
     default: () => <div>Not found</div>,

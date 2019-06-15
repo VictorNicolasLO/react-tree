@@ -6,27 +6,34 @@ function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'defau
 
 var React = require('react');
 var React__default = _interopDefault(React);
-var reactRouterDom = require('react-router-dom');
 var mobx = require('mobx');
+var reactRouterDom = require('react-router-dom');
 var mobxReactLite = require('mobx-react-lite');
 
-function _defineProperty(obj, key, value) {
-  if (key in obj) {
-    Object.defineProperty(obj, key, {
-      value: value,
-      enumerable: true,
-      configurable: true,
-      writable: true
-    });
-  } else {
-    obj[key] = value;
+class NotFoundTemplate {
+  constructor() {
+    this.template = () => React__default.createElement("div", null, "Not found!!");
   }
 
-  return obj;
-}
+  get() {
+    return this.template;
+  }
 
-function _initializerWarningHelper(descriptor, context) {
-  throw new Error('Decorating class property failed. Please ensure that ' + 'proposal-class-properties is enabled and set to use loose mode. ' + 'To use proposal-class-properties in spec mode with decorators, wait for ' + 'the next major version of decorators in stage 2.');
+  set(template) {
+    this.template = template;
+  }
+
+}
+const NotFound = new NotFoundTemplate();
+
+function _initializerDefineProperty(target, property, descriptor, context) {
+  if (!descriptor) return;
+  Object.defineProperty(target, property, {
+    enumerable: descriptor.enumerable,
+    configurable: descriptor.configurable,
+    writable: descriptor.writable,
+    value: descriptor.initializer ? descriptor.initializer.call(context) : void 0
+  });
 }
 
 function _applyDecoratedDescriptor(target, property, decorators, descriptor, context) {
@@ -57,22 +64,6 @@ function _applyDecoratedDescriptor(target, property, decorators, descriptor, con
 
   return desc;
 }
-
-class NotFoundTemplate {
-  constructor() {
-    _defineProperty(this, "template", () => React__default.createElement("div", null, "Not found!!"));
-  }
-
-  get() {
-    return this.template;
-  }
-
-  set(template) {
-    this.template = template;
-  }
-
-}
-const NotFound = new NotFoundTemplate();
 
 /**
  * Copyright 2014-2015, Facebook, Inc.
@@ -769,22 +760,54 @@ var createBrowserHistory = function createBrowserHistory() {
   return history;
 };
 
-var nav = createBrowserHistory({});
+var _class, _descriptor, _descriptor2, _temp;
+let Navigator = (_class = (_temp = class Navigator {
+  constructor() {
+    _initializerDefineProperty(this, "location", _descriptor, this);
+
+    _initializerDefineProperty(this, "match", _descriptor2, this);
+
+    this.history = createBrowserHistory({});
+    this.push = this.history.push;
+  }
+
+  setRoute(location, match, history) {
+    this.location = location;
+    this.match = match;
+    this.history = history;
+  }
+
+}, _temp), (_descriptor = _applyDecoratedDescriptor(_class.prototype, "location", [mobx.observable], {
+  configurable: true,
+  enumerable: true,
+  writable: true,
+  initializer: function () {
+    return {};
+  }
+}), _descriptor2 = _applyDecoratedDescriptor(_class.prototype, "match", [mobx.observable], {
+  configurable: true,
+  enumerable: true,
+  writable: true,
+  initializer: function () {
+    return {};
+  }
+}), _applyDecoratedDescriptor(_class.prototype, "setRoute", [mobx.action], Object.getOwnPropertyDescriptor(_class.prototype, "setRoute"), _class.prototype)), _class);
+var navigator$1 = new Navigator();
 
 function initController(Controller) {
   const newController = new Controller();
+  mobx.extendObservable(newController, {
+    ready: false,
+    error: undefined
+  });
 
   (async () => {
     try {
-      await newController.init();
-
-      if ('ready' in newController) {
-        newController.ready = true;
-      }
+      if (newController.init) await newController.init();
+      newController.ready = true;
     } catch (e) {
-      if ('error' in newController) {
-        newController.error = e;
-      }
+      newController.error = e;
+      throw e;
     }
   })();
 
@@ -793,24 +816,24 @@ function initController(Controller) {
 
 class ServiceStore {
   constructor() {
-    _defineProperty(this, "store", {});
+    this.store = {};
 
-    _defineProperty(this, "create", Service => {
+    this.create = Service => {
       this.store[Service._id] = initController(Service);
       return this.store[Service._id];
-    });
+    };
 
-    _defineProperty(this, "get", Service => {
+    this.get = Service => {
       if (this.store[Service._id]) {
         return this.store[Service._id];
       } else return this.create(Service);
-    });
+    };
 
-    _defineProperty(this, "destroy", Service => {
+    this.destroy = Service => {
       if (this.store[Service._id]) {
         delete this.store[Service._id];
       }
-    });
+    };
   }
 
 }
@@ -822,8 +845,7 @@ function ServiceDecorator(config) {
     class Result extends Target {
       constructor(config) {
         super(config);
-
-        _defineProperty(this, "models", {});
+        this.models = {};
 
         for (let i in this) {
           this.models[i] = e => {
@@ -846,8 +868,9 @@ function ControllerDecorator(config) {
     return _temp = class Result extends Target {
       constructor(config) {
         super(config);
-
-        _defineProperty(this, "models", {});
+        this.models = {};
+        this.ready = false;
+        this.error = false;
 
         for (let i in this) {
           this.models[i] = e => {
@@ -860,15 +883,16 @@ function ControllerDecorator(config) {
   };
 }
 function injectDecorator(Service, config = {}) {
-  return function (Target) {
-    return instance.get(Service);
+  return function (target, key, descriptor) {
+    target[key] = instance.get(Service);
+    return descriptor;
   };
 }
 
-var _class, _descriptor, _temp;
-let LayoutService = (_class = (_temp = class LayoutService {
+var _class$1, _descriptor$1, _temp$1;
+let LayoutService = (_class$1 = (_temp$1 = class LayoutService {
   constructor() {
-    _defineProperty(this, "show", _initializerWarningHelper(_descriptor, this));
+    _initializerDefineProperty(this, "show", _descriptor$1, this);
   }
 
   switch() {
@@ -883,12 +907,12 @@ let LayoutService = (_class = (_temp = class LayoutService {
     this.show = false;
   }
 
-}, _temp), (_descriptor = _applyDecoratedDescriptor(_class.prototype, "show", [mobx.observable], {
+}, _temp$1), (_descriptor$1 = _applyDecoratedDescriptor(_class$1.prototype, "show", [mobx.observable], {
   configurable: true,
   enumerable: true,
   writable: true,
   initializer: null
-}), _applyDecoratedDescriptor(_class.prototype, "switch", [mobx.action], Object.getOwnPropertyDescriptor(_class.prototype, "switch"), _class.prototype), _applyDecoratedDescriptor(_class.prototype, "enable", [mobx.action], Object.getOwnPropertyDescriptor(_class.prototype, "enable"), _class.prototype), _applyDecoratedDescriptor(_class.prototype, "disable", [mobx.action], Object.getOwnPropertyDescriptor(_class.prototype, "disable"), _class.prototype)), _class);
+}), _applyDecoratedDescriptor(_class$1.prototype, "switch", [mobx.action], Object.getOwnPropertyDescriptor(_class$1.prototype, "switch"), _class$1.prototype), _applyDecoratedDescriptor(_class$1.prototype, "enable", [mobx.action], Object.getOwnPropertyDescriptor(_class$1.prototype, "enable"), _class$1.prototype), _applyDecoratedDescriptor(_class$1.prototype, "disable", [mobx.action], Object.getOwnPropertyDescriptor(_class$1.prototype, "disable"), _class$1.prototype)), _class$1);
 
 const useServiceHook = (Service, opt = {}) => {
   React.useEffect(() => {
@@ -918,15 +942,15 @@ const defaultConfig = {
 
 class Defaults {
   constructor(defaults) {
-    _defineProperty(this, "setAll", data => {
+    this.setAll = data => {
       this.data = data;
-    });
+    };
 
-    _defineProperty(this, "set", (value, key) => {
+    this.set = (value, key) => {
       this.data[key] = value;
-    });
+    };
 
-    _defineProperty(this, "get", key => this.data[key]);
+    this.get = key => this.data[key];
 
     this.data = defaults;
   }
@@ -941,7 +965,7 @@ function component(Target, config = {}) {
   if (config.wait) {
     const wait = config.wait;
     const waitForDefault = defaultsInstance.get('waitFor');
-    const Template = wait.component || wait.template ? waitForDefault.templates[wait.template] : waitForDefault.default;
+    const Template = wait.component || (wait.template ? waitForDefault.templates[wait.template] : waitForDefault.default);
     return mobxReactLite.observer(props => {
       const isResolved = config.wait.for(props);
       if (!isResolved) return React__default.createElement(Template, props);else return React__default.createElement(Target, props);
@@ -1009,7 +1033,8 @@ function createRouteComponent(opt) {
   });
   let isDisableLayouRun = false;
 
-  const routedComponent = () => {
+  const routedComponent = props => {
+    navigator$1.setRoute(props.location, props.match, props.history);
     React.useEffect(() => {
       runOnEnter(opt.onEnter);
       return () => {
@@ -1023,6 +1048,11 @@ function createRouteComponent(opt) {
       isDisableLayouRun = true;
     }
 
+    if (opt.wait) {
+      const isLoading = opt.wait.for();
+      return;
+    }
+
     const isProtected = runProtect(opt.guard);
 
     if (isProtected) {
@@ -1031,10 +1061,14 @@ function createRouteComponent(opt) {
       });
     }
 
-    return React__default.createElement(Component, null);
+    return React__default.createElement(Component, {
+      location: props.location,
+      match: props.match,
+      history: props.history
+    });
   };
 
-  return component(routedComponent);
+  return React__default.memo(component(routedComponent), (prev, next) => prev.location.pathname == next.location.pathname);
 }
 
 function makeRoute(item, index) {
@@ -1049,13 +1083,30 @@ function makeRoute(item, index) {
   });
 }
 
+function sortRoutes(routes) {
+  const nested = routes.map(route => {
+    return { ...route,
+      ...{
+        _nested: route.path.split('/').filter(ch => ch != '').length
+      }
+    };
+  });
+  return nested.sort(({
+    _nested: r1
+  }, {
+    _nested: r2
+  }) => r1 > r2 ? -1 : 1);
+}
+
 function createRouter(router, config = {}) {
-  const notFoundTemplate = config.notFoundTemplate;
-  const notFoundComponent = config.notFoundComponent;
-  const notFoundDefault = defaultsInstance.get('notFound');
+  const sortedRouter = sortRoutes(router);
+  const routesComponent = sortedRouter.map(makeRoute);
 
   const ResultComponent = () => {
-    return React__default.createElement(reactRouterDom.Switch, null, router.map(makeRoute), config.default ? makeRoute({ ...config.default,
+    const notFoundTemplate = config.notFoundTemplate;
+    const notFoundComponent = config.notFoundComponent;
+    const notFoundDefault = defaultsInstance.get('notFound');
+    return React__default.createElement(reactRouterDom.Switch, null, routesComponent, config.default ? makeRoute({ ...config.default,
       ...{
         path: '*'
       }
@@ -1068,11 +1119,11 @@ function createRouter(router, config = {}) {
   return ResultComponent;
 }
 
-const navigator$1 = nav;
+const navigator$2 = navigator$1;
 
 exports.NotFound = NotFound;
 exports.createRouter = createRouter;
-exports.navigator = navigator$1;
+exports.navigator = navigator$2;
 exports.component = component;
 exports.LayoutService = LayoutService$1;
 exports.injectService = injectService;

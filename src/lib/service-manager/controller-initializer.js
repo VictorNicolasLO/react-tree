@@ -1,15 +1,18 @@
+import { extendObservable } from 'mobx';
+
 export function initController(Controller) {
   const newController = new Controller();
+  extendObservable(newController, {
+    ready: false,
+    error: undefined,
+  });
   (async () => {
     try {
-      await newController.init();
-      if (!('ready' in newController)) {
-        newController.ready = true;
-      }
+      if (newController.init) await newController.init();
+      newController.ready = true;
     } catch (e) {
-      if (!('error' in newController)) {
-        newController.error = e;
-      }
+      newController.error = e;
+      throw e;
     }
   })();
   return newController;

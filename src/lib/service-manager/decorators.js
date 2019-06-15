@@ -1,4 +1,5 @@
 import { instance } from './service-store';
+import { observable } from 'mobx';
 let id = 0;
 export function ServiceDecorator(config) {
   return function(Target) {
@@ -23,6 +24,8 @@ export function ControllerDecorator(config) {
   return function(Target) {
     return class Result extends Target {
       models = {};
+      ready = false;
+      error = false;
       constructor(config) {
         super(config);
         for (let i in this) {
@@ -36,7 +39,8 @@ export function ControllerDecorator(config) {
 }
 
 export function injectDecorator(Service, config = {}) {
-  return function(Target) {
-    return instance.get(Service);
+  return function(target, key, descriptor) {
+    target[key] = instance.get(Service);
+    return target;
   };
 }

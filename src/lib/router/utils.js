@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { component, injectService } from '../service-manager';
 import LayoutService from '../service-manager/layout-service';
 import { Redirect } from 'react-router-dom';
+import navigator from './navigator';
 function runOnEnter(onEnter) {
   if (onEnter) {
     if (onEnter.length) for (let i in onEnter) onEnter[i]();
@@ -56,7 +57,8 @@ export function createRouteComponent(opt) {
 
   let isDisableLayouRun = false;
 
-  const routedComponent = () => {
+  const routedComponent = (props) => {
+    navigator.setRoute(props.location, props.match, props.history);
     useEffect(() => {
       runOnEnter(opt.onEnter);
       return () => {
@@ -68,13 +70,26 @@ export function createRouteComponent(opt) {
       runDisableLayout(services);
       isDisableLayouRun = true;
     }
+    if (opt.wait) {
+      const isLoading = opt.wait.for();
+      return;
+    }
     const isProtected = runProtect(opt.guard);
     if (isProtected) {
       return <Redirect to={isProtected} />;
     }
 
-    return <Component />;
+    return (
+      <Component
+        location={props.location}
+        match={props.match}
+        history={props.history}
+      />
+    );
   };
 
-  return component(routedComponent);
+  return React.memo(
+    component(routedComponent),
+    (prev, next) => prev.location.pathname == next.location.pathname,
+  );
 }

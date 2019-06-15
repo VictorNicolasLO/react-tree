@@ -15,14 +15,28 @@ function makeRoute(item, index) {
   );
 }
 
+function sortRoutes(routes) {
+  const nested = routes.map((route) => {
+    return {
+      ...route,
+      ...{
+        _nested: route.path.split('/').filter((ch) => ch != '').length,
+      },
+    };
+  });
+  return nested.sort(({ _nested: r1 }, { _nested: r2 }) => (r1 > r2 ? -1 : 1));
+}
+
 export function createRouter(router, config = {}) {
-  const notFoundTemplate = config.notFoundTemplate;
-  const notFoundComponent = config.notFoundComponent;
-  const notFoundDefault = defaultsInstance.get('notFound');
+  const sortedRouter = sortRoutes(router);
+  const routesComponent = sortedRouter.map(makeRoute);
   const ResultComponent = () => {
+    const notFoundTemplate = config.notFoundTemplate;
+    const notFoundComponent = config.notFoundComponent;
+    const notFoundDefault = defaultsInstance.get('notFound');
     return (
       <Switch>
-        {router.map(makeRoute)}
+        {routesComponent}
         {config.default ? (
           makeRoute({ ...config.default, ...{ path: '*' } }, 'default')
         ) : (

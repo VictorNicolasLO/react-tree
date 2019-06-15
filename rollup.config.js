@@ -32,7 +32,7 @@ export default {
         'transform-react-jsx',
         ['@babel/plugin-proposal-decorators', { legacy: true }],
         // '@babel/plugin-external-helpers',
-        '@babel/plugin-proposal-class-properties',
+        ['@babel/plugin-proposal-class-properties', { loose: true }],
       ],
     }),
     resolve(),

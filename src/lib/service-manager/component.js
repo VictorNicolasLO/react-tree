@@ -16,7 +16,7 @@ export function component(Target, config = {}) {
     return observer((props) => {
       const isResolved = config.wait.for(props);
       if (!isResolved) return <Template {...props} />;
-      else return <Target {...props} />;
+      else return useObserver(<Target {...props} />);
     });
   }
   return observer(Target);

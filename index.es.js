@@ -878,7 +878,7 @@ function ControllerDecorator(config) {
 function injectDecorator(Service, config = {}) {
   return function (target, key, descriptor) {
     target[key] = instance.get(Service);
-    return descriptor;
+    return target;
   };
 }
 

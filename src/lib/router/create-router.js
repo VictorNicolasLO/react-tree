@@ -2,9 +2,17 @@ import React from 'react';
 import { Switch, Route, Redirect } from 'react-router-dom';
 import { createRouteComponent } from './utils';
 import { defaultsInstance } from '../defaults';
+import pathToRegexp from 'path-to-regexp';
+import navigator from './navigator';
+import { toJS } from 'mobx';
 
 function makeRoute(item, index) {
-  if (item.redirect) item.component = () => <Redirect to={item.redirect} />;
+  if (item.redirect)
+    item.component = () => (
+      <Redirect
+        to={pathToRegexp.compile(item.redirect)(navigator.match.params)}
+      />
+    );
   return (
     <Route
       exact={item.exact}

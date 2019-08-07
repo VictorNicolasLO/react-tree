@@ -1,6 +1,6 @@
 {
   "name": "rrsx",
-  "version": "1.1.635",
+  "version": "1.1.652",
   "description": "Rrsx",
   "main": "index.js",
   "module": "index.es.js",
@@ -98,6 +98,7 @@
     "babel-plugin-transform-decorators": "^6.24.1",
     "babel-preset-react-app": "^7.0.2",
     "fork-ts-checker-webpack-plugin-alt": "^0.4.14",
+    "path-to-regexp": "^3.0.0",
     "rollup-plugin-replace": "^2.1.0",
     "rollup-plugin-terser": "^4.0.4"
   },

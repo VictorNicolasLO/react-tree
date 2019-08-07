@@ -12,6 +12,10 @@ export function ServiceDecorator(config) {
             this[i] = e.target.value;
           };
         }
+        if (this.__servicesToInject)
+          this.__servicesToInject.forEach(({ service, key }) => {
+            this[key] = instance.get(service);
+          });
       }
     }
     Result._id = id;
@@ -40,7 +44,10 @@ export function ControllerDecorator(config) {
 
 export function injectDecorator(Service, config = {}) {
   return function(target, key, descriptor) {
-    target[key] = instance.get(Service);
-    return target;
+    if (!target.__servicesToInject) {
+      target.__servicesToInject = [{ service: Service, key }];
+    } else target.__servicesToInject.push({ service: Service, key });
+    //target[key] = instance.get(Service);
+    return descriptor;
   };
 }

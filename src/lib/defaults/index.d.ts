@@ -7,10 +7,14 @@ export declare interface WaitFor {
   default: Component;
   templates: Object;
 }
-
+export declare interface WIP {
+  default: Component;
+  templates: Object;
+}
 export declare interface RRSXDefaults {
   notFound: NotFound;
   waitFor: WaitFor;
+  wip: WIP;
 }
 
 export declare function setDefaults(params: RRSXDefaults);

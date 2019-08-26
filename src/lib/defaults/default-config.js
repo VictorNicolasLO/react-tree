@@ -8,4 +8,8 @@ export const defaultConfig = {
     default: () => <div>Loading</div>,
     templates: {},
   },
+  wip: {
+    default: () => <div>WIP</div>,
+    templates: {},
+  },
 };

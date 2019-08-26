@@ -947,6 +947,10 @@ const defaultConfig = {
   waitFor: {
     default: () => React.createElement("div", null, "Loading"),
     templates: {}
+  },
+  wip: {
+    default: () => React.createElement("div", null, "WIP"),
+    templates: {}
   }
 };
 
@@ -1455,6 +1459,16 @@ pathToRegexp_1.tokensToFunction = tokensToFunction_1;
 pathToRegexp_1.tokensToRegExp = tokensToRegExp_1;
 
 function makeRoute(item, index) {
+  if (item.wip) {
+    const WipComponent = defaultsInstance.get('wip').default;
+    return React.createElement(Route, {
+      exact: item.exact,
+      key: index,
+      path: item.path,
+      component: WipComponent
+    });
+  }
+
   if (item.redirect) item.component = () => React.createElement(Redirect, {
     to: pathToRegexp_1.compile(item.redirect)(navigator$1.match.params)
   });

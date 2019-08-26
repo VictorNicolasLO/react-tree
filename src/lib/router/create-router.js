@@ -7,6 +7,17 @@ import navigator from './navigator';
 import { toJS } from 'mobx';
 
 function makeRoute(item, index) {
+  if (item.wip) {
+    const WipComponent = defaultsInstance.get('wip').default;
+    return (
+      <Route
+        exact={item.exact}
+        key={index}
+        path={item.path}
+        component={WipComponent}
+      />
+    );
+  }
   if (item.redirect)
     item.component = () => (
       <Redirect

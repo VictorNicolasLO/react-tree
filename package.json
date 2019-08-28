@@ -1,7 +1,7 @@
 {
-  "name": "rrsx",
-  "version": "1.1.655",
-  "description": "Rrsx",
+  "name": "react-tree",
+  "version": "0.0.1",
+  "description": "React tree",
   "main": "index.js",
   "module": "index.es.js",
   "types": "index.d.ts",
@@ -29,9 +29,9 @@
     "deploy": "gh-pages -d example/build"
   },
   "peerDependencies": {
-    "mobx": "^4.0.0 || ^5.0.0",
-    "react": "^16.8.0",
-    "mobx-react-lite": "^1.1.1",
+    "mobx": "^5.0.0",
+    "react": "^16.9.0",
+    "mobx-react-lite": "^1.4.1",
     "react-dom": "^16.8.3",
     "react-router": "^4.3.1",
     "react-router-dom": "^4.3.1"
@@ -69,10 +69,10 @@
     "eslint-plugin-standard": "^3.1.0",
     "gh-pages": "^1.2.0",
     "history": "^4.7.2",
-    "mobx": "^5.9.0",
-    "mobx-react-lite": "^1.1.1",
-    "react": "^16.8.3",
-    "react-dom": "^16.8.3",
+    "mobx": "^5.13.0",
+    "mobx-react-lite": "^1.4.1",
+    "react": "^16.9.0",
+    "react-dom": "^16.9.0",
     "react-router": "^4.3.1",
     "react-router-dom": "^4.3.1",
     "react-scripts": "^2.1.8",

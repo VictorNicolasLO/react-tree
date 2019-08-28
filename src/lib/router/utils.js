@@ -3,6 +3,7 @@ import { component, injectService } from '../service-manager';
 import LayoutService from '../service-manager/layout-service';
 import { Redirect } from 'react-router-dom';
 import navigator from './navigator';
+import { AppConfigCtx } from '../ctx/ctx';
 function runOnEnter(onEnter) {
   if (onEnter) {
     if (onEnter.length) for (let i in onEnter) onEnter[i]();

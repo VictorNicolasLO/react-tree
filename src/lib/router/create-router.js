@@ -1,12 +1,15 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Switch, Route, Redirect } from 'react-router-dom';
 import { createRouteComponent } from './utils';
 import { defaultsInstance } from '../defaults';
 import pathToRegexp from 'path-to-regexp';
 import navigator from './navigator';
 import { toJS } from 'mobx';
+import { RouterCtx } from '../ctx/ctx';
 
 function makeRoute(item, index) {
+  // if wip is true display 'wip' template
+
   if (item.wip) {
     const WipComponent = defaultsInstance.get('wip').default;
     return (
@@ -18,19 +21,27 @@ function makeRoute(item, index) {
       />
     );
   }
+  // if redirect is a path, change the route by the redirect string otherwise it doesn't anything
   if (item.redirect)
     item.component = () => (
       <Redirect
         to={pathToRegexp.compile(item.redirect)(navigator.match.params)}
       />
     );
+
   return (
-    <Route
-      exact={item.exact}
-      key={index}
-      path={item.path}
-      component={createRouteComponent(item)}
-    />
+    <RouterCtx.Consumer>
+      {({ parent }) => (
+        <RouterCtx.Provider value={{ parent: parent + item.path }}>
+          <Route
+            exact={item.exact}
+            key={index}
+            path={parent + item.path}
+            component={createRouteComponent(item)}
+          />
+        </RouterCtx.Provider>
+      )}
+    </RouterCtx.Consumer>
   );
 }
 
@@ -49,7 +60,8 @@ function sortRoutes(routes) {
 export function createRouter(router, config = {}) {
   const sortedRouter = sortRoutes(router);
   const routesComponent = sortedRouter.map(makeRoute);
-  const ResultComponent = () => {
+  const ResultComponent = ({ routerConfig }) => {
+    const { parent } = routerConfig | {};
     const notFoundTemplate = config.notFoundTemplate;
     const notFoundComponent = config.notFoundComponent;
     const notFoundDefault = defaultsInstance.get('notFound');

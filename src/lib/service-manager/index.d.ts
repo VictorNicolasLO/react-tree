@@ -17,7 +17,7 @@ export interface UseServiceOptions {
 
 export declare function useService<T>(Service, options: UseServiceOptions): T;
 
-export declare function useController<T>(Controller): T;
+export declare function useController<T>(): T;
 
 export const LayoutService: LayoutServiceLib;
 

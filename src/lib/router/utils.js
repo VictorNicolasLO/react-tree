@@ -5,31 +5,31 @@ import { Redirect } from 'react-router-dom';
 import navigator from './navigator';
 import { AppConfigCtx } from '../ctx';
 import ServiceStore from '../service-manager/service-store';
-function runOnEnter(onEnter) {
+function runOnEnter(onEnter, params) {
   if (onEnter) {
-    if (onEnter.length) for (let i in onEnter) onEnter[i]();
-    else onEnter();
+    if (onEnter.length) for (let i in onEnter) onEnter[i](params);
+    else onEnter(params);
   }
 }
 
-function runOnOut(onOut) {
+function runOnOut(onOut, params) {
   if (onOut) {
-    if (onOut.length) for (let i in onOut) onOut[i]();
-    else onOut();
+    if (onOut.length) for (let i in onOut) onOut[i](params);
+    else onOut(params);
   }
 }
 
-function runProtect(protect) {
+function runProtect(protect, params) {
   if (protect) {
     if (protect.length)
       for (let i in protect) {
-        const protectRes = protect[i]();
+        const protectRes = protect[i](params);
         if (protectRes) {
           return protectRes;
         }
       }
     else {
-      const protectRes = protect();
+      const protectRes = protect(params);
       if (protectRes) {
         return protectRes;
       }
@@ -61,23 +61,23 @@ export function createRouteComponent(opt) {
 
   const RoutedComponent = (props) => {
     navigator.setRoute(props.location, props.match, props.history);
+    // Crate optional params for onEnter, onOut and guards
     const { store, controller } = useContext(AppConfigCtx);
-    const useService = (service)=>{
-      store.get(Service), [Service])
-
-    }
-    const useController = ()=>{
+    const useService = (service) => {
+      return store.get(Service);
+    };
+    const useController = () => {
       return controller;
-    }
+    };
+    const params = { useController, useService };
+
     useEffect(() => {
-      runOnEnter(opt.onEnter);
+      runOnEnter(opt.onEnter, params);
       return () => {
-        runEnableLayout(services);
-        runOnOut(opt.onOut);
+        runOnOut(opt.onOut, params);
       };
     }, []);
     if (!isDisableLayouRun) {
-      runDisableLayout(services);
       isDisableLayouRun = true;
     }
     if (opt.wait) {
@@ -85,7 +85,7 @@ export function createRouteComponent(opt) {
       return;
     }
 
-    const isProtected = runProtect(opt.guard);
+    const isProtected = runProtect(opt.guard, params);
     if (isProtected) {
       return <Redirect to={isProtected} />;
     }

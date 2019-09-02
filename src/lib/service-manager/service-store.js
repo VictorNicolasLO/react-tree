@@ -4,7 +4,7 @@ export default class ServiceStore {
   store = {};
 
   create = (Service) => {
-    this.store[Service._id] = initController(Service);
+    this.store[Service._id] = initController(Service, this);
     return this.store[Service._id];
   };
 

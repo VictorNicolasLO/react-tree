@@ -1,19 +1,27 @@
-import { useMemo, useEffect, useState } from 'react';
+import { useMemo, useEffect, useState, useContext } from 'react';
 import { initController } from './controller-initializer';
 import ServiceStore, { instance } from './service-store';
+import { AppConfigCtx } from '../ctx';
 
 export const useServiceHook = (Service, opt = {}) => {
+  const { store } = useContext(AppConfigCtx);
   useEffect(() => {
     return () => {
       if (opt.attach) {
-        instance.destroy(Service);
+        store.destroy(Service);
       }
     };
   }, []);
-  return useMemo(() => instance.get(Service), [Service]);
+
+  return useMemo(() => store.get(Service), [Service]);
 };
 
 export const useControllerHook = (Controller) => {
-  const [controller] = useState(initController(Controller));
+  const { controller } = useContext(AppConfigCtx);
   return controller;
+};
+
+export const useAppConfig = () => {
+  const appConfig = useContext(AppConfigCtx);
+  return appConfig;
 };

@@ -1,9 +1,10 @@
-import React, { useEffect } from 'react';
-import { component, injectService } from '../service-manager';
+import React, { useEffect, useContext } from 'react';
+import { component, injectService, useService } from '../service-manager';
 import LayoutService from '../service-manager/layout-service';
 import { Redirect } from 'react-router-dom';
 import navigator from './navigator';
-import { AppConfigCtx } from '../ctx/ctx';
+import { AppConfigCtx } from '../ctx';
+import ServiceStore from '../service-manager/service-store';
 function runOnEnter(onEnter) {
   if (onEnter) {
     if (onEnter.length) for (let i in onEnter) onEnter[i]();
@@ -58,8 +59,16 @@ export function createRouteComponent(opt) {
 
   let isDisableLayouRun = false;
 
-  const routedComponent = (props) => {
+  const RoutedComponent = (props) => {
     navigator.setRoute(props.location, props.match, props.history);
+    const { store, controller } = useContext(AppConfigCtx);
+    const useService = (service)=>{
+      store.get(Service), [Service])
+
+    }
+    const useController = ()=>{
+      return controller;
+    }
     useEffect(() => {
       runOnEnter(opt.onEnter);
       return () => {
@@ -75,6 +84,7 @@ export function createRouteComponent(opt) {
       const isLoading = opt.wait.for();
       return;
     }
+
     const isProtected = runProtect(opt.guard);
     if (isProtected) {
       return <Redirect to={isProtected} />;
@@ -88,6 +98,30 @@ export function createRouteComponent(opt) {
       />
     );
   };
+
+  const appConfig = opt.appConfig;
+  const appConfigComponent = !appConfig
+    ? RoutedComponent
+    : (props) => {
+        const controller = useService(appConfig.controller, {
+          attach: !appConfig.keepController,
+        });
+        return (
+          <AppConfigCtx.Consumer>
+            {(parentAppConfig) => (
+              <AppConfigCtx.Provider
+                value={{
+                  parentApp: parentAppConfig,
+                  ...appConfig,
+                  controller,
+                  store: new ServiceStore(),
+                }}>
+                <RoutedComponent {...props} />
+              </AppConfigCtx.Provider>
+            )}
+          </AppConfigCtx.Consumer>
+        );
+      };
 
   return React.memo(
     component(routedComponent),

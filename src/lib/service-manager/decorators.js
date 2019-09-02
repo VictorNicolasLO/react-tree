@@ -5,8 +5,8 @@ export function ServiceDecorator(config) {
   return function(Target) {
     class Result extends Target {
       models = {};
-      constructor(config) {
-        super(config);
+      constructor(configService) {
+        super(configService);
         for (let i in this) {
           this.models[i] = (e) => {
             this[i] = e.target.value;
@@ -14,7 +14,7 @@ export function ServiceDecorator(config) {
         }
         if (this.__servicesToInject)
           this.__servicesToInject.forEach(({ service, key }) => {
-            this[key] = instance.get(service);
+            this[key] = configService.store.get(service);
           });
       }
     }

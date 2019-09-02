@@ -6,5 +6,6 @@ export const AppConfigCtx = React.createContext({
   appId: '',
   controller: undefined,
   params: {},
+  store: {},
   parentApp: undefined,
 });

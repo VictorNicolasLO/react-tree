@@ -5,7 +5,7 @@ import { defaultsInstance } from '../defaults';
 import pathToRegexp from 'path-to-regexp';
 import navigator from './navigator';
 import { toJS } from 'mobx';
-import { RouterCtx } from '../ctx/ctx';
+import { RouterCtx } from '../ctx';
 
 function makeRoute(item, index) {
   // if wip is true display 'wip' template

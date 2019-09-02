@@ -1,7 +1,7 @@
 import { extendObservable } from 'mobx';
 
-export function initController(Controller) {
-  const newController = new Controller();
+export function initController(Controller, store) {
+  const newController = new Controller({ store });
   const extendData = {};
   if (!newController.hasOwnProperty('ready')) {
     extendData.ready = false;

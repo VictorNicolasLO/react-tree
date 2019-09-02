@@ -1,11 +1,11 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React$1, { useContext, useEffect, useMemo } from 'react';
 import { observable, action, extendObservable } from 'mobx';
-import { Redirect, Route, Switch } from 'react-router-dom';
+import { Route, Redirect, Switch } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
 
 class NotFoundTemplate {
   constructor() {
-    this.template = () => React.createElement("div", null, "Not found!!");
+    this.template = () => React$1.createElement("div", null, "Not found!!");
   }
 
   get() {
@@ -787,12 +787,21 @@ let Navigator = (_class = (_temp = class Navigator {
 }), _applyDecoratedDescriptor(_class.prototype, "setRoute", [action], Object.getOwnPropertyDescriptor(_class.prototype, "setRoute"), _class.prototype)), _class);
 var navigator$1 = new Navigator();
 
-function initController(Controller) {
-  const newController = new Controller();
-  extendObservable(newController, {
-    ready: false,
-    error: undefined
+function initController(Controller, store) {
+  const newController = new Controller({
+    store
   });
+  const extendData = {};
+
+  if (!newController.hasOwnProperty('ready')) {
+    extendData.ready = false;
+  }
+
+  if (!newController.hasOwnProperty('error')) {
+    extendData.error = undefined;
+  }
+
+  extendObservable(newController, extendData);
 
   (async () => {
     try {
@@ -812,7 +821,7 @@ class ServiceStore {
     this.store = {};
 
     this.create = Service => {
-      this.store[Service._id] = initController(Service);
+      this.store[Service._id] = initController(Service, this);
       return this.store[Service._id];
     };
 
@@ -836,8 +845,8 @@ let id = 0;
 function ServiceDecorator(config) {
   return function (Target) {
     class Result extends Target {
-      constructor(config) {
-        super(config);
+      constructor(configService) {
+        super(configService);
         this.models = {};
 
         for (let i in this) {
@@ -850,7 +859,7 @@ function ServiceDecorator(config) {
           service,
           key
         }) => {
-          this[key] = instance.get(service);
+          this[key] = configService.store.get(service);
         });
       }
 
@@ -924,32 +933,48 @@ let LayoutService = (_class$1 = (_temp$1 = class LayoutService {
   initializer: null
 }), _applyDecoratedDescriptor(_class$1.prototype, "switch", [action], Object.getOwnPropertyDescriptor(_class$1.prototype, "switch"), _class$1.prototype), _applyDecoratedDescriptor(_class$1.prototype, "enable", [action], Object.getOwnPropertyDescriptor(_class$1.prototype, "enable"), _class$1.prototype), _applyDecoratedDescriptor(_class$1.prototype, "disable", [action], Object.getOwnPropertyDescriptor(_class$1.prototype, "disable"), _class$1.prototype)), _class$1);
 
+const RouterCtx = React.createContext({
+  parent: ''
+});
+const AppConfigCtx = React.createContext({
+  appId: '',
+  controller: undefined,
+  params: {},
+  store: {},
+  parentApp: undefined
+});
+
 const useServiceHook = (Service, opt = {}) => {
+  const {
+    store
+  } = useContext(AppConfigCtx);
   useEffect(() => {
     return () => {
       if (opt.attach) {
-        instance.destroy(Service);
+        store.destroy(Service);
       }
     };
   }, []);
-  return useMemo(() => instance.get(Service), [Service]);
+  return useMemo(() => store.get(Service), [Service]);
 };
 const useControllerHook = Controller => {
-  const [controller] = useState(initController(Controller));
+  const {
+    controller
+  } = useContext(AppConfigCtx);
   return controller;
 };
 
 const defaultConfig = {
   notFound: {
-    default: () => React.createElement("div", null, "Not found"),
+    default: () => React$1.createElement("div", null, "Not found"),
     templates: {}
   },
   waitFor: {
-    default: () => React.createElement("div", null, "Loading"),
+    default: () => React$1.createElement("div", null, "Loading"),
     templates: {}
   },
   wip: {
-    default: () => React.createElement("div", null, "WIP"),
+    default: () => React$1.createElement("div", null, "WIP"),
     templates: {}
   }
 };
@@ -983,7 +1008,7 @@ function component(Target, config = {}) {
     const ObserverTarget = observer(Target);
     return observer(props => {
       const isResolved = config.wait.for(props);
-      if (!isResolved) return React.createElement(Template, props);else return React.createElement(ObserverTarget, props);
+      if (!isResolved) return React$1.createElement(Template, props);else return React$1.createElement(ObserverTarget, props);
     });
   }
 
@@ -1000,90 +1025,15 @@ const service = ServiceDecorator;
 const controller = ControllerDecorator;
 const inject = injectDecorator;
 
-function runOnEnter(onEnter) {
-  if (onEnter) {
-    if (onEnter.length) for (let i in onEnter) onEnter[i]();else onEnter();
-  }
-}
-
-function runOnOut(onOut) {
-  if (onOut) {
-    if (onOut.length) for (let i in onOut) onOut[i]();else onOut();
-  }
-}
-
-function runProtect(protect) {
-  if (protect) {
-    if (protect.length) for (let i in protect) {
-      const protectRes = protect[i]();
-
-      if (protectRes) {
-        return protectRes;
-      }
-    } else {
-      const protectRes = protect();
-
-      if (protectRes) {
-        return protectRes;
-      }
-    }
-  }
-}
-
-function runDisableLayout(services) {
-  for (let i in services) services[i].disable();
-}
-
-function runEnableLayout(services) {
-  for (let i in services) {
-    services[i].enable();
-  }
-}
-
 function createRouteComponent(opt) {
   const Component = opt.component;
   let services = [];
   if (opt.disableLayout) services = !opt.disableLayout.length ? [injectService(opt.disableLayout)] : opt.disableLayout.map(item => {
     return injectService(item);
   });
-  let isDisableLayouRun = false;
 
-  const routedComponent = props => {
-    navigator$1.setRoute(props.location, props.match, props.history);
-    useEffect(() => {
-      runOnEnter(opt.onEnter);
-      return () => {
-        runEnableLayout(services);
-        runOnOut(opt.onOut);
-      };
-    }, []);
-
-    if (!isDisableLayouRun) {
-      runDisableLayout(services);
-      isDisableLayouRun = true;
-    }
-
-    if (opt.wait) {
-      const isLoading = opt.wait.for();
-      return;
-    }
-
-    const isProtected = runProtect(opt.guard);
-
-    if (isProtected) {
-      return React.createElement(Redirect, {
-        to: isProtected
-      });
-    }
-
-    return React.createElement(Component, {
-      location: props.location,
-      match: props.match,
-      history: props.history
-    });
-  };
-
-  return React.memo(component(routedComponent), (prev, next) => prev.location.pathname == next.location.pathname);
+  const appConfig = opt.appConfig;
+  return React$1.memo(component(routedComponent), (prev, next) => prev.location.pathname == next.location.pathname);
 }
 
 /**
@@ -1459,25 +1409,33 @@ pathToRegexp_1.tokensToFunction = tokensToFunction_1;
 pathToRegexp_1.tokensToRegExp = tokensToRegExp_1;
 
 function makeRoute(item, index) {
+  // if wip is true display 'wip' template
   if (item.wip) {
     const WipComponent = defaultsInstance.get('wip').default;
-    return React.createElement(Route, {
+    return React$1.createElement(Route, {
       exact: item.exact,
       key: index,
       path: item.path,
       component: WipComponent
     });
-  }
+  } // if redirect is a path, change the route by the redirect string otherwise it doesn't anything
 
-  if (item.redirect) item.component = () => React.createElement(Redirect, {
+
+  if (item.redirect) item.component = () => React$1.createElement(Redirect, {
     to: pathToRegexp_1.compile(item.redirect)(navigator$1.match.params)
   });
-  return React.createElement(Route, {
+  return React$1.createElement(RouterCtx.Consumer, null, ({
+    parent
+  }) => React$1.createElement(RouterCtx.Provider, {
+    value: {
+      parent: parent + item.path
+    }
+  }, React$1.createElement(Route, {
     exact: item.exact,
     key: index,
-    path: item.path,
+    path: parent + item.path,
     component: createRouteComponent(item)
-  });
+  })));
 }
 
 function sortRoutes(routes) {
@@ -1499,15 +1457,17 @@ function createRouter(router, config = {}) {
   const sortedRouter = sortRoutes(router);
   const routesComponent = sortedRouter.map(makeRoute);
 
-  const ResultComponent = () => {
+  const ResultComponent = ({
+    routerConfig
+  }) => {
     const notFoundTemplate = config.notFoundTemplate;
     const notFoundComponent = config.notFoundComponent;
     const notFoundDefault = defaultsInstance.get('notFound');
-    return React.createElement(Switch, null, routesComponent, config.default ? makeRoute({ ...config.default,
+    return React$1.createElement(Switch, null, routesComponent, config.default ? makeRoute({ ...config.default,
       ...{
         path: '*'
       }
-    }, 'default') : React.createElement(Route, {
+    }, 'default') : React$1.createElement(Route, {
       path: "*",
       component: notFoundComponent || (notFoundTemplate ? notFoundDefault.templates[notFoundTemplate] : notFoundDefault.default)
     }));

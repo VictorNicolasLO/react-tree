@@ -1,7 +1,7 @@
 {
-  "name": "react-tree",
+  "name": "react-garden-kit",
   "version": "0.0.1",
-  "description": "React tree",
+  "description": "React garden kit",
   "main": "index.js",
   "module": "index.es.js",
   "types": "index.d.ts",

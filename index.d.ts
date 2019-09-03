@@ -1,4 +1,6 @@
 export { createRouter, navigator, Router } from './src/lib/router';
+export { AppConfigCtx, RouterCtx } from './src/lib/ctx';
+
 export {
   component,
   LayoutService,

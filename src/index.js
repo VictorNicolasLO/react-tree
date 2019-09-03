@@ -1,4 +1,5 @@
 export { NotFound, createRouter, navigator } from './lib/router';
+export { AppConfigCtx, RouterCtx } from './lib/ctx';
 export {
   component,
   LayoutService,

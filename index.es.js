@@ -1,11 +1,11 @@
-import React$1, { useContext, useEffect, useMemo } from 'react';
+import React, { useContext, useEffect, useMemo } from 'react';
 import { observable, action, extendObservable } from 'mobx';
-import { Route, Redirect, Switch } from 'react-router-dom';
+import { Redirect, Route, Switch } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
 
 class NotFoundTemplate {
   constructor() {
-    this.template = () => React$1.createElement("div", null, "Not found!!");
+    this.template = () => React.createElement("div", null, "Not found!!");
   }
 
   get() {
@@ -966,15 +966,15 @@ const useControllerHook = Controller => {
 
 const defaultConfig = {
   notFound: {
-    default: () => React$1.createElement("div", null, "Not found"),
+    default: () => React.createElement("div", null, "Not found"),
     templates: {}
   },
   waitFor: {
-    default: () => React$1.createElement("div", null, "Loading"),
+    default: () => React.createElement("div", null, "Loading"),
     templates: {}
   },
   wip: {
-    default: () => React$1.createElement("div", null, "WIP"),
+    default: () => React.createElement("div", null, "WIP"),
     templates: {}
   }
 };
@@ -1008,7 +1008,7 @@ function component(Target, config = {}) {
     const ObserverTarget = observer(Target);
     return observer(props => {
       const isResolved = config.wait.for(props);
-      if (!isResolved) return React$1.createElement(Template, props);else return React$1.createElement(ObserverTarget, props);
+      if (!isResolved) return React.createElement(Template, props);else return React.createElement(ObserverTarget, props);
     });
   }
 
@@ -1025,6 +1025,36 @@ const service = ServiceDecorator;
 const controller = ControllerDecorator;
 const inject = injectDecorator;
 
+function runOnEnter(onEnter, params) {
+  if (onEnter) {
+    if (onEnter.length) for (let i in onEnter) onEnter[i](params);else onEnter(params);
+  }
+}
+
+function runOnOut(onOut, params) {
+  if (onOut) {
+    if (onOut.length) for (let i in onOut) onOut[i](params);else onOut(params);
+  }
+}
+
+function runProtect(protect, params) {
+  if (protect) {
+    if (protect.length) for (let i in protect) {
+      const protectRes = protect[i](params);
+
+      if (protectRes) {
+        return protectRes;
+      }
+    } else {
+      const protectRes = protect(params);
+
+      if (protectRes) {
+        return protectRes;
+      }
+    }
+  }
+}
+
 function createRouteComponent(opt) {
   const Component = opt.component;
   let services = [];
@@ -1032,8 +1062,68 @@ function createRouteComponent(opt) {
     return injectService(item);
   });
 
+  const RoutedComponent = props => {
+    navigator$1.setRoute(props.location, props.match, props.history); // Crate optional params for onEnter, onOut and guards
+
+    const {
+      store,
+      controller
+    } = useContext(AppConfigCtx);
+
+    const useService = service => {
+      return store.get(Service);
+    };
+
+    const useController = () => {
+      return controller;
+    };
+
+    const params = {
+      useController,
+      useService
+    };
+    useEffect(() => {
+      runOnEnter(opt.onEnter, params);
+      return () => {
+        runOnOut(opt.onOut, params);
+      };
+    }, []);
+
+    if (opt.wait) {
+      const isLoading = opt.wait.for();
+      return;
+    }
+
+    const isProtected = runProtect(opt.guard, params);
+
+    if (isProtected) {
+      return React.createElement(Redirect, {
+        to: isProtected
+      });
+    }
+
+    return React.createElement(Component, {
+      location: props.location,
+      match: props.match,
+      history: props.history
+    });
+  };
+
   const appConfig = opt.appConfig;
-  return React$1.memo(component(routedComponent), (prev, next) => prev.location.pathname == next.location.pathname);
+  const FinalComponent = !appConfig ? RoutedComponent : props => {
+    const controller = useService(appConfig.controller, {
+      attach: !appConfig.keepController
+    });
+    return React.createElement(AppConfigCtx.Consumer, null, parentAppConfig => React.createElement(AppConfigCtx.Provider, {
+      value: {
+        parentApp: parentAppConfig,
+        ...appConfig,
+        controller,
+        store: new ServiceStore()
+      }
+    }, React.createElement(RoutedComponent, props)));
+  };
+  return React.memo(component(FinalComponent), (prev, next) => prev.location.pathname == next.location.pathname);
 }
 
 /**
@@ -1412,7 +1502,7 @@ function makeRoute(item, index) {
   // if wip is true display 'wip' template
   if (item.wip) {
     const WipComponent = defaultsInstance.get('wip').default;
-    return React$1.createElement(Route, {
+    return React.createElement(Route, {
       exact: item.exact,
       key: index,
       path: item.path,
@@ -1421,16 +1511,16 @@ function makeRoute(item, index) {
   } // if redirect is a path, change the route by the redirect string otherwise it doesn't anything
 
 
-  if (item.redirect) item.component = () => React$1.createElement(Redirect, {
+  if (item.redirect) item.component = () => React.createElement(Redirect, {
     to: pathToRegexp_1.compile(item.redirect)(navigator$1.match.params)
   });
-  return React$1.createElement(RouterCtx.Consumer, null, ({
+  return React.createElement(RouterCtx.Consumer, null, ({
     parent
-  }) => React$1.createElement(RouterCtx.Provider, {
+  }) => React.createElement(RouterCtx.Provider, {
     value: {
       parent: parent + item.path
     }
-  }, React$1.createElement(Route, {
+  }, React.createElement(Route, {
     exact: item.exact,
     key: index,
     path: parent + item.path,
@@ -1463,11 +1553,11 @@ function createRouter(router, config = {}) {
     const notFoundTemplate = config.notFoundTemplate;
     const notFoundComponent = config.notFoundComponent;
     const notFoundDefault = defaultsInstance.get('notFound');
-    return React$1.createElement(Switch, null, routesComponent, config.default ? makeRoute({ ...config.default,
+    return React.createElement(Switch, null, routesComponent, config.default ? makeRoute({ ...config.default,
       ...{
         path: '*'
       }
-    }, 'default') : React$1.createElement(Route, {
+    }, 'default') : React.createElement(Route, {
       path: "*",
       component: notFoundComponent || (notFoundTemplate ? notFoundDefault.templates[notFoundTemplate] : notFoundDefault.default)
     }));

@@ -100,7 +100,7 @@ export function createRouteComponent(opt) {
   };
 
   const appConfig = opt.appConfig;
-  const appConfigComponent = !appConfig
+  const FinalComponent = !appConfig
     ? RoutedComponent
     : (props) => {
         const controller = useService(appConfig.controller, {
@@ -124,7 +124,7 @@ export function createRouteComponent(opt) {
       };
 
   return React.memo(
-    component(routedComponent),
+    component(FinalComponent),
     (prev, next) => prev.location.pathname == next.location.pathname,
   );
 }

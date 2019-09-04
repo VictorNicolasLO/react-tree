@@ -1,5 +1,7 @@
 import { instance } from './service-store';
 import { observable } from 'mobx';
+import navigator from '../router/navigator';
+
 let id = 0;
 export function ServiceDecorator(config) {
   return function(Target) {
@@ -15,6 +17,15 @@ export function ServiceDecorator(config) {
         if (this.__servicesToInject)
           this.__servicesToInject.forEach(({ service, key }) => {
             this[key] = configService.store.get(service);
+          });
+        if (this.__injectNavigator)
+          this.__injectNavigator.forEach(({ service, key }) => {
+            this[key] = {
+              nav: navigator,
+              push: (path) => {
+                navigator.push(configService.parentRoute + path);
+              },
+            };
           });
       }
     }
@@ -39,6 +50,15 @@ export function ControllerDecorator(config) {
         }
       }
     };
+  };
+}
+
+export function injectNavigatorDecorator(Service, config = {}) {
+  return function(target, key, descriptor) {
+    if (!target.__injectNavigator) {
+      target.__injectNavigator = [{ key }];
+    } else target.__injectNavigator.push({ key });
+    return descriptor;
   };
 }
 

@@ -1,12 +1,12 @@
 export const RouterCtx = React.createContext({
-    parent: '',
-  });
-  
-  export const AppConfigCtx = React.createContext({
-    appId: '',
-    controller: undefined,
-    params: {},
-    store: {},
-    parentApp: undefined,
-  });
-  
+  parent: '',
+});
+
+export const AppConfigCtx = React.createContext({
+  appId: '',
+  parentRoute: '',
+  controller: undefined,
+  params: {},
+  store: {},
+  parentApp: undefined,
+});

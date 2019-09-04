@@ -1,13 +1,13 @@
 import { useMemo } from 'react';
-import ServiceStore from './service-store';
+import Ss from './service-store';
 import { ServiceDecorator, injectDecorator } from './decorators';
 
 export { component } from './component';
 
 import LayoutServiceLib from './layout-service';
 import { ControllerDecorator } from './decorators';
-
-export declare const serviceStore: ServiceStore;
+export const ServiceStore = Ss;
+export declare const serviceStore: Ss;
 
 export declare function injectService<T>(Service): T;
 

@@ -1,4 +1,4 @@
-import ServiceStore, { instance } from './service-store';
+import Ss, { instance } from './service-store';
 import {
   ServiceDecorator,
   injectDecorator,
@@ -8,7 +8,7 @@ import LayoutServiceLib from './layout-service';
 import { useServiceHook, useControllerHook } from './hooks';
 
 export { component } from './component';
-
+export const ServiceStore = Ss;
 export const serviceStore = instance;
 
 export const injectService = serviceStore.get;

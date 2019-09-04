@@ -6,6 +6,7 @@ export const RouterCtx = React.createContext({
 export const AppConfigCtx = React.createContext({
   appId: '',
   controller: undefined,
+  parentRoute: '',
   params: {},
   store: {},
   parentApp: undefined,

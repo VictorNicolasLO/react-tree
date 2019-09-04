@@ -1022,6 +1022,7 @@ function component(Target, config = {}) {
   return mobxReactLite.observer(Target);
 }
 
+const ServiceStore$1 = ServiceStore;
 const serviceStore = instance;
 const injectService = serviceStore.get;
 const useService = useServiceHook;
@@ -1578,6 +1579,8 @@ const navigator$2 = navigator$1;
 exports.NotFound = NotFound;
 exports.createRouter = createRouter;
 exports.navigator = navigator$2;
+exports.AppConfigCtx = AppConfigCtx;
+exports.RouterCtx = RouterCtx;
 exports.component = component;
 exports.LayoutService = LayoutService$1;
 exports.injectService = injectService;
@@ -1587,5 +1590,6 @@ exports.serviceStore = serviceStore;
 exports.inject = inject;
 exports.useController = useController;
 exports.controller = controller;
+exports.ServiceStore = ServiceStore$1;
 exports.setDefaults = setDefaults;
 //# sourceMappingURL=index.js.map

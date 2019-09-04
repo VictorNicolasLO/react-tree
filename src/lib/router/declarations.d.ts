@@ -16,6 +16,7 @@ export interface RouterOptions {
   onOut?: ParamsFunctionalRouteMethod | Array<ParamsFunctionalRouteMethod>;
   redirect?: string;
   exact?: boolean;
+  appConfig: AppConfig;
 }
 
 export interface DefaultRouterOptions {

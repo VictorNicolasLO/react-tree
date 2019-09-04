@@ -1,4 +1,4 @@
-export { createRouter, navigator, Router } from './src/lib/router';
+export { createRouter, navigator, Router, Navigator } from './src/lib/router';
 export { AppConfigCtx, RouterCtx } from './src/lib/ctx';
 
 export {
@@ -10,6 +10,7 @@ export {
   useController,
   serviceStore,
   inject,
+  ServiceStore,
 } from './src/lib/service-manager';
 
 export {

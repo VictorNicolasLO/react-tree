@@ -5,6 +5,7 @@ import { Redirect } from 'react-router-dom';
 import navigator from './navigator';
 import { AppConfigCtx } from '../ctx';
 import ServiceStore from '../service-manager/service-store';
+import { RouterCtx } from '../ctx';
 function runOnEnter(onEnter, params) {
   if (onEnter) {
     if (onEnter.length) for (let i in onEnter) onEnter[i](params);
@@ -107,19 +108,24 @@ export function createRouteComponent(opt) {
           attach: !appConfig.keepController,
         });
         return (
-          <AppConfigCtx.Consumer>
-            {(parentAppConfig) => (
-              <AppConfigCtx.Provider
-                value={{
-                  parentApp: parentAppConfig,
-                  ...appConfig,
-                  controller,
-                  store: new ServiceStore(),
-                }}>
-                <RoutedComponent {...props} />
-              </AppConfigCtx.Provider>
+          <RouterCtx.Consumer>
+            {({ parent }) => (
+              <AppConfigCtx.Consumer>
+                {(parentAppConfig) => (
+                  <AppConfigCtx.Provider
+                    value={{
+                      parentApp: parentAppConfig,
+                      ...appConfig,
+                      controller,
+                      store: new ServiceStore(),
+                      parentRoute: parent,
+                    }}>
+                    <RoutedComponent {...props} />
+                  </AppConfigCtx.Provider>
+                )}
+              </AppConfigCtx.Consumer>
             )}
-          </AppConfigCtx.Consumer>
+          </RouterCtx.Consumer>
         );
       };
 

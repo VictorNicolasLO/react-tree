@@ -1015,6 +1015,7 @@ function component(Target, config = {}) {
   return observer(Target);
 }
 
+const ServiceStore$1 = ServiceStore;
 const serviceStore = instance;
 const injectService = serviceStore.get;
 const useService = useServiceHook;
@@ -1568,5 +1569,5 @@ function createRouter(router, config = {}) {
 
 const navigator$2 = navigator$1;
 
-export { NotFound, createRouter, navigator$2 as navigator, component, LayoutService$1 as LayoutService, injectService, service, useService, serviceStore, inject, useController, controller, setDefaults };
+export { NotFound, createRouter, navigator$2 as navigator, AppConfigCtx, RouterCtx, component, LayoutService$1 as LayoutService, injectService, service, useService, serviceStore, inject, useController, controller, ServiceStore$1 as ServiceStore, setDefaults };
 //# sourceMappingURL=index.es.js.map

@@ -1,4 +1,4 @@
-export { NotFound, createRouter, navigator } from './lib/router';
+export { NotFound, createRouter, navigator, Navigator } from './lib/router';
 export { AppConfigCtx, RouterCtx } from './lib/ctx';
 export {
   component,
@@ -10,6 +10,7 @@ export {
   inject,
   useController,
   controller,
+  ServiceStore,
 } from './lib/service-manager';
 
 export { setDefaults } from './lib/defaults';

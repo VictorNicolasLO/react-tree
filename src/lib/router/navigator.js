@@ -1,7 +1,7 @@
 import { createBrowserHistory } from 'history';
 import { observable, action } from 'mobx';
 
-class Navigator {
+export class Navigator {
   @observable location = {};
   @observable match = {};
   history = createBrowserHistory({});

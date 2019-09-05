@@ -2,9 +2,12 @@ import { initController } from './controller-initializer';
 
 export default class ServiceStore {
   store = {};
-
+  constructor(appConfig) {
+    this.appConfig = appConfig;
+    this.appConfig.store = this;
+  }
   create = (Service) => {
-    this.store[Service._id] = initController(Service, this);
+    this.store[Service._id] = initController(Service, this.appConfig);
     return this.store[Service._id];
   };
 

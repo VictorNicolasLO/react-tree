@@ -11,6 +11,9 @@ export {
   serviceStore,
   inject,
   ServiceStore,
+  useNavigator,
+  useRouter,
+  useAppConfig,
 } from './src/lib/service-manager';
 
 export {

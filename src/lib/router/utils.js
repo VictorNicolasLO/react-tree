@@ -63,14 +63,18 @@ export function createRouteComponent(opt) {
   const RoutedComponent = (props) => {
     navigator.setRoute(props.location, props.match, props.history);
     // Crate optional params for onEnter, onOut and guards
-    const { store, controller } = useContext(AppConfigCtx);
+    const appConfig = useContext(AppConfigCtx);
+    const { store, controller } = appConfig;
     const useService = (service) => {
       return store.get(Service);
     };
     const useController = () => {
       return controller;
     };
-    const params = { useController, useService };
+    const useAppConfig = () => {
+      return appConfig;
+    };
+    const params = { useController, useService, useAppConfig };
 
     useEffect(() => {
       runOnEnter(opt.onEnter, params);
@@ -117,7 +121,12 @@ export function createRouteComponent(opt) {
                       parentApp: parentAppConfig,
                       ...appConfig,
                       controller,
-                      store: new ServiceStore(),
+                      store: new ServiceStore({
+                        parentApp: parentAppConfig,
+                        ...appConfig,
+                        controller,
+                        parentRoute: parent,
+                      }),
                       parentRoute: parent,
                     }}>
                     <RoutedComponent {...props} />

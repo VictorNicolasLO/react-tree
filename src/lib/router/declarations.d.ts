@@ -1,19 +1,31 @@
 import LayoutService from '../service-manager/layout-service';
 import React, { Component } from 'react';
-export declare function useService<T>(Service, options: UseServiceOptions): T;
+export declare function useService<T>(Service): T;
 export declare function useController<T>(): T;
+export declare function useAppConfig(): AppConfig;
+export interface AppConfig {
+  appId: string;
+  controller: any;
+  params: Object;
+  keepController: boolean;
+  keepStore: boolean;
+}
+
 export interface ParamsFunctionalRouteMethod {
   useService: useService;
   useController: useController;
+  useAppConfig: AppConfig;
 }
-export const FunctionalRouteMethod = (params) => {};
+export const FunctionalRouteMethod = (
+  params: ParamsFunctionalRouteMethod,
+) => {};
 export interface RouterOptions {
   path: string;
   component: Component;
   disableLayout?: LayoutService | Array<LayoutService>;
-  guard?: ParamsFunctionalRouteMethod | Array<ParamsFunctionalRouteMethod>;
-  onEnter?: ParamsFunctionalRouteMethod | Array<ParamsFunctionalRouteMethod>;
-  onOut?: ParamsFunctionalRouteMethod | Array<ParamsFunctionalRouteMethod>;
+  guard?: FunctionalRouteMethod | Array<FunctionalRouteMethod>;
+  onEnter?: FunctionalRouteMethod | Array<FunctionalRouteMethod>;
+  onOut?: FunctionalRouteMethod | Array<FunctionalRouteMethod>;
   redirect?: string;
   exact?: boolean;
   appConfig: AppConfig;
@@ -27,14 +39,6 @@ export interface DefaultRouterOptions {
   onOut?: Function | Array<Function>;
   redirect?: string;
   exact?: boolean;
-}
-
-export interface AppConfig {
-  appId: string;
-  controller: any;
-  params: Object;
-  keepController: boolean;
-  keepStore: boolean;
 }
 
 export interface Config {

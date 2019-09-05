@@ -11,6 +11,9 @@ export {
   useController,
   controller,
   ServiceStore,
+  useNavigator,
+  useRouter,
+  useAppConfig,
 } from './lib/service-manager';
 
 export { setDefaults } from './lib/defaults';

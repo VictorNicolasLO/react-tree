@@ -3,6 +3,7 @@ import { initController } from './controller-initializer';
 import ServiceStore, { instance } from './service-store';
 import { AppConfigCtx } from '../ctx';
 import { RouterCtx } from '../ctx';
+import { navigator } from '../router';
 
 export const useServiceHook = (Service, opt = {}) => {
   const { store } = useContext(AppConfigCtx);
@@ -22,11 +23,19 @@ export const useControllerHook = (Controller) => {
   return controller;
 };
 
-export const useAppConfig = () => {
+export const useAppConfigHook = () => {
   const appConfig = useContext(AppConfigCtx);
   return appConfig;
 };
 
-export const useRouter = () => {
+export const useRouterHook = () => {
   const { parent } = useContext(RouterCtx);
+};
+
+export const useNavigatorHook = () => {
+  const { parent } = useContext(RouterCtx);
+  return {
+    nav: navigator,
+    push: (path) => navigator.push(parent + path),
+  };
 };

@@ -3,7 +3,8 @@ import { initController } from './controller-initializer';
 export default class ServiceStore {
   store = {};
   constructor(appConfig) {
-    this.appConfig = appConfig;
+    this.appConfig = appConfig || { parent: '/' };
+
     this.appConfig.store = this;
   }
   create = (Service) => {

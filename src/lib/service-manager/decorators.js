@@ -14,22 +14,25 @@ export function ServiceDecorator(config) {
             this[i] = e.target.value;
           };
         }
-        if (this.__servicesToInject)
+        if (this.__servicesToInject) {
           this.__servicesToInject.forEach(({ service, key }) => {
             this[key] = appConfig.store.get(service);
           });
+        }
 
-        if (this.__injectAppConfig)
+        if (this.__injectAppConfig) {
           this.__injectAppConfig.forEach(({ key }) => {
             this[key] = appConfig;
           });
+        }
 
-        if (this.__injectController)
+        if (this.__injectController) {
           this.__injectController.forEach(({ key }) => {
             this[key] = appConfig.controller;
           });
+        }
 
-        if (this.__injectNavigator)
+        if (this.__injectNavigator) {
           this.__injectNavigator.forEach(({ service, key }) => {
             this[key] = {
               nav: navigator,
@@ -38,6 +41,7 @@ export function ServiceDecorator(config) {
               },
             };
           });
+        }
       }
     }
     Result._id = id;

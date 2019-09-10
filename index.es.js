@@ -787,10 +787,8 @@ let Navigator = (_class = (_temp = class Navigator {
 }), _applyDecoratedDescriptor(_class.prototype, "setRoute", [action], Object.getOwnPropertyDescriptor(_class.prototype, "setRoute"), _class.prototype)), _class);
 var navigator$1 = new Navigator();
 
-function initController(Controller, store) {
-  const newController = new Controller({
-    store
-  });
+function initController(Controller, appConfig) {
+  const newController = new Controller(appConfig);
   const extendData = {};
 
   if (!newController.hasOwnProperty('ready')) {
@@ -817,11 +815,11 @@ function initController(Controller, store) {
 }
 
 class ServiceStore {
-  constructor() {
+  constructor(appConfig) {
     this.store = {};
 
     this.create = Service => {
-      this.store[Service._id] = initController(Service, this);
+      this.store[Service._id] = initController(Service, this.appConfig);
       return this.store[Service._id];
     };
 
@@ -836,6 +834,11 @@ class ServiceStore {
         delete this.store[Service._id];
       }
     };
+
+    this.appConfig = appConfig || {
+      parent: '/'
+    };
+    this.appConfig.store = this;
   }
 
 }
@@ -845,8 +848,8 @@ let id = 0;
 function ServiceDecorator(config) {
   return function (Target) {
     class Result extends Target {
-      constructor(configService) {
-        super(configService);
+      constructor(appConfig) {
+        super(appConfig);
         this.models = {};
 
         for (let i in this) {
@@ -859,7 +862,28 @@ function ServiceDecorator(config) {
           service,
           key
         }) => {
-          this[key] = configService.store.get(service);
+          this[key] = appConfig.store.get(service);
+        });
+        if (this.__injectAppConfig) this.__injectAppConfig.forEach(({
+          key
+        }) => {
+          this[key] = appConfig;
+        });
+        if (this.__injectController) this.__injectController.forEach(({
+          key
+        }) => {
+          this[key] = appConfig.controller;
+        });
+        if (this.__injectNavigator) this.__injectNavigator.forEach(({
+          service,
+          key
+        }) => {
+          this[key] = {
+            nav: navigator$1,
+            push: path => {
+              navigator$1.push(appConfig.parentRoute + path);
+            }
+          };
         });
       }
 
@@ -907,6 +931,47 @@ function injectDecorator(Service, config = {}) {
     return descriptor;
   };
 }
+function injectNavigatorDecorator(Service, config = {}) {
+  return function (target, key, descriptor) {
+    if (!target.__injectNavigator) {
+      target.__injectNavigator = [{
+        key
+      }];
+    } else target.__injectNavigator.push({
+      key
+    });
+
+    return descriptor;
+  };
+}
+function injectAppConfigDecorator(Service, config = {}) {
+  return function (target, key, descriptor) {
+    if (!target.__injectAppConfig) {
+      target.__injectAppConfig = [{
+        key
+      }];
+    } else target.__injectAppConfig.push({
+      key
+    }); //target[key] = instance.get(Service);
+
+
+    return descriptor;
+  };
+}
+function injectControllerDecorator(Service, config = {}) {
+  return function (target, key, descriptor) {
+    if (!target.__injectController) {
+      target.__injectController = [{
+        key
+      }];
+    } else target.__injectController.push({
+      key
+    }); //target[key] = instance.get(Service);
+
+
+    return descriptor;
+  };
+} // TODO inject controller decorator y terminar de exportar y resolver tipado para los controladores y appConfig (especialmente en hooks e inyecciones)
 
 var _class$1, _descriptor$1, _temp$1;
 let LayoutService = (_class$1 = (_temp$1 = class LayoutService {
@@ -939,6 +1004,7 @@ const RouterCtx = React.createContext({
 const AppConfigCtx = React.createContext({
   appId: '',
   controller: undefined,
+  parentRoute: '',
   params: {},
   store: {},
   parentApp: undefined
@@ -962,6 +1028,24 @@ const useControllerHook = Controller => {
     controller
   } = useContext(AppConfigCtx);
   return controller;
+};
+const useAppConfigHook = () => {
+  const appConfig = useContext(AppConfigCtx);
+  return appConfig;
+};
+const useRouterHook = () => {
+  const {
+    parent
+  } = useContext(RouterCtx);
+};
+const useNavigatorHook = () => {
+  const {
+    parent
+  } = useContext(RouterCtx);
+  return {
+    nav: navigator$2,
+    push: path => navigator$2.push(parent + path)
+  };
 };
 
 const defaultConfig = {
@@ -1016,15 +1100,23 @@ function component(Target, config = {}) {
 }
 
 const ServiceStore$1 = ServiceStore;
-const serviceStore = instance;
+const serviceStore = instance; // Deprecated
+
 const injectService = serviceStore.get;
+const LayoutService$1 = LayoutService; // Hooks
+
 const useService = useServiceHook;
 const useController = useControllerHook;
-const LayoutService$1 = LayoutService; // Decorators
+const useNavigator = useNavigatorHook;
+const useRouter = useRouterHook;
+const useAppConfig = useAppConfigHook; // Decorators
 
 const service = ServiceDecorator;
 const controller = ControllerDecorator;
 const inject = injectDecorator;
+const injectNavigator = injectNavigatorDecorator;
+const injectAppConfig = injectAppConfigDecorator;
+const injectController = injectControllerDecorator;
 
 function runOnEnter(onEnter, params) {
   if (onEnter) {
@@ -1066,10 +1158,11 @@ function createRouteComponent(opt) {
   const RoutedComponent = props => {
     navigator$1.setRoute(props.location, props.match, props.history); // Crate optional params for onEnter, onOut and guards
 
+    const appConfig = useContext(AppConfigCtx);
     const {
       store,
       controller
-    } = useContext(AppConfigCtx);
+    } = appConfig;
 
     const useService = service => {
       return store.get(Service);
@@ -1079,9 +1172,14 @@ function createRouteComponent(opt) {
       return controller;
     };
 
+    const useAppConfig = () => {
+      return appConfig;
+    };
+
     const params = {
       useController,
-      useService
+      useService,
+      useAppConfig
     };
     useEffect(() => {
       runOnEnter(opt.onEnter, params);
@@ -1115,14 +1213,22 @@ function createRouteComponent(opt) {
     const controller = useService(appConfig.controller, {
       attach: !appConfig.keepController
     });
-    return React.createElement(AppConfigCtx.Consumer, null, parentAppConfig => React.createElement(AppConfigCtx.Provider, {
+    return React.createElement(RouterCtx.Consumer, null, ({
+      parent
+    }) => React.createElement(AppConfigCtx.Consumer, null, parentAppConfig => React.createElement(AppConfigCtx.Provider, {
       value: {
         parentApp: parentAppConfig,
         ...appConfig,
         controller,
-        store: new ServiceStore()
+        store: new ServiceStore({
+          parentApp: parentAppConfig,
+          ...appConfig,
+          controller,
+          parentRoute: parent
+        }),
+        parentRoute: parent
       }
-    }, React.createElement(RoutedComponent, props)));
+    }, React.createElement(RoutedComponent, props))));
   };
   return React.memo(component(FinalComponent), (prev, next) => prev.location.pathname == next.location.pathname);
 }
@@ -1568,6 +1674,7 @@ function createRouter(router, config = {}) {
 }
 
 const navigator$2 = navigator$1;
+const Navigator$1 = Navigator;
 
-export { NotFound, createRouter, navigator$2 as navigator, AppConfigCtx, RouterCtx, component, LayoutService$1 as LayoutService, injectService, service, useService, serviceStore, inject, useController, controller, ServiceStore$1 as ServiceStore, setDefaults };
+export { NotFound, createRouter, navigator$2 as navigator, Navigator$1 as Navigator, AppConfigCtx, RouterCtx, component, LayoutService$1 as LayoutService, injectService, service, serviceStore, inject, injectAppConfig, injectController, injectNavigator, controller, ServiceStore$1 as ServiceStore, useController, useService, useNavigator, useRouter, useAppConfig, setDefaults };
 //# sourceMappingURL=index.es.js.map

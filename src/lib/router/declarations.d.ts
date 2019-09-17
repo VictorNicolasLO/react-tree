@@ -7,8 +7,8 @@ export interface AppConfig {
   appId: string;
   controller: any;
   params: Object;
-  keepController: boolean;
-  keepStore: boolean;
+  keepController?: boolean;
+  keepStore?: boolean;
 }
 
 export interface ParamsFunctionalRouteMethod {
@@ -21,7 +21,7 @@ export const FunctionalRouteMethod = (
 ) => {};
 export interface RouterOptions {
   path: string;
-  component: Component;
+  component: any;
   disableLayout?: LayoutService | Array<LayoutService>;
   guard?: FunctionalRouteMethod | Array<FunctionalRouteMethod>;
   onEnter?: FunctionalRouteMethod | Array<FunctionalRouteMethod>;

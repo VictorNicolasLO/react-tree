@@ -12,6 +12,6 @@ export interface Config {
 }
 
 export declare function component<T>(
-  Target: React.Component,
+  Target: React.StatelessComponent<T>,
   config?: Config,
-): (props: T) => {};
+): React.StatelessComponent<T | null>;

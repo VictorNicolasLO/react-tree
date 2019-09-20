@@ -21,9 +21,9 @@ function makeRoute(item, index) {
       />
     );
   }
-  // if redirect is a path, change the route by the redirect string otherwise it doesn't anything
+  // if "redirect" is a path, change the route by the redirect string otherwise it doesn't anything
   if (item.redirect)
-    item.component = () => (
+    return (
       <Redirect
         to={pathToRegexp.compile(item.redirect)(navigator.match.params)}
       />

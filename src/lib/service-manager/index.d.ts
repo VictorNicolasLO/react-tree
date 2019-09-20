@@ -36,7 +36,7 @@ export interface AppConfig {
   store: object;
   parentApp: AppConfig;
 }
-export declare function useService<T>(Service, options: UseServiceOptions): T;
+export declare function useService<T>(Service, options?: UseServiceOptions): T;
 export declare function useController<T>(): T;
 export declare function useNavigator(): Navigator;
 export declare function useRouter(): Router;

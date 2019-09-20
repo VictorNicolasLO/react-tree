@@ -21,18 +21,18 @@ export const FunctionalRouteMethod = (
 ) => {};
 export interface RouterOptions {
   path: string;
-  component: any;
+  component?: any;
   disableLayout?: LayoutService | Array<LayoutService>;
   guard?: FunctionalRouteMethod | Array<FunctionalRouteMethod>;
   onEnter?: FunctionalRouteMethod | Array<FunctionalRouteMethod>;
   onOut?: FunctionalRouteMethod | Array<FunctionalRouteMethod>;
   redirect?: string;
   exact?: boolean;
-  appConfig: AppConfig;
+  appConfig?: AppConfig;
 }
 
 export interface DefaultRouterOptions {
-  component: Component;
+  component?: Component;
   disableLayout?: LayoutService | Array<LayoutService>;
   guard?: Function | Array<Function>;
   onEnter?: Function | Array<Function>;
@@ -42,8 +42,8 @@ export interface DefaultRouterOptions {
 }
 
 export interface Config {
-  default: DefaultRouterOptions;
-  notFoundComponent: Component;
-  notFoundTemplate: string;
-  appConfig: AppConfig;
+  default?: DefaultRouterOptions;
+  notFoundComponent?: Component;
+  notFoundTemplate?: string;
+  appConfig?: AppConfig;
 }

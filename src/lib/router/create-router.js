@@ -21,13 +21,16 @@ function makeRoute(item, index) {
       />
     );
   }
+
   // if "redirect" is a path, change the route by the redirect string otherwise it doesn't anything
-  if (item.redirect)
-    return (
+  if (item.redirect) {
+    console.log(pathToRegexp.compile(item.redirect)(navigator.match.params));
+    item.component = () => (
       <Redirect
         to={pathToRegexp.compile(item.redirect)(navigator.match.params)}
       />
     );
+  }
 
   return (
     <RouterCtx.Consumer>

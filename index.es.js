@@ -1526,12 +1526,17 @@ function makeRoute(item, index) {
       path: item.path,
       component: WipComponent
     });
-  } // if redirect is a path, change the route by the redirect string otherwise it doesn't anything
+  } // if "redirect" is a path, change the route by the redirect string otherwise it doesn't anything
 
 
-  if (item.redirect) item.component = () => React.createElement(Redirect, {
-    to: pathToRegexp_1.compile(item.redirect)(navigator$1.match.params)
-  });
+  if (item.redirect) {
+    console.log(pathToRegexp_1.compile(item.redirect)(navigator$1.match.params));
+
+    item.component = () => React.createElement(Redirect, {
+      to: pathToRegexp_1.compile(item.redirect)(navigator$1.match.params)
+    });
+  }
+
   return React.createElement(RouterCtx.Consumer, null, ({
     parent
   }) => React.createElement(RouterCtx.Provider, {
